@@ -11,15 +11,19 @@ func main() {
 
 	for i := 0; i < cap(ch); i++ {
 		wg.Add(1)
-		go func(i int, ch chan int, wg *sync.WaitGroup) {
+		go func(i int) {
 			defer wg.Done()
-			ch <- i * 2
-		}(i, ch, &wg)
+			ch <- i + 1
+		}(i)
 	}
+
 	wg.Wait()
 	close(ch)
 
+	var sum int = 0
 	for i := range ch {
-		fmt.Println(i)
+		sum += i
 	}
+
+	fmt.Println(sum)
 }
