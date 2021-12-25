@@ -2,10 +2,6 @@ package main
 
 import "fmt"
 
-type Number interface {
-    int64 | float64
-}
-
 func main() {
     // Initialize a map for the integer values
     ints := map[string]int64{
@@ -66,7 +62,7 @@ func SumIntsOrFloats[K comparable, V int64 | float64](m map[K]V) V {
 
 // SumNumbers sums the values of map m. Its supports both integers
 // and floats as map values.
-func SumNumbers[K comparable, V Number](m map[K]V) V {
+func SumNumbers[K comparable, V  int64 | float64](m map[K]V) V {
     var s V
     for _, v := range m {
         s += v
