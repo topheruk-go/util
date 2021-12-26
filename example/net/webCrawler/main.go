@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 
@@ -19,21 +20,36 @@ func main() {
 
 func run() (err error) {
 	if len(os.Args) == 1 {
-		return errors.New("please pass in a url as an argument")
+		return errors.New("please pass in a url(s) as an argument")
 	}
 
-	r, err := http.Get(os.Args[1])
+	var unique = map[string]*url.URL{}
+	for _, u := range os.Args[1:] {
+		// convert to goroutine
+		crawl(u, unique)
+	}
+
+	for url := range unique {
+		fmt.Println(url)
+	}
+
+	return
+}
+
+func crawl(u string, unique map[string]*url.URL) {
+	r, err := http.Get(u)
 	if err != nil {
 		return
 	}
 	defer r.Body.Close()
 	l := lex(r.Body)
 
+	// FIXME: this needs to be in a go routine
 	for item := range l.items {
-		fmt.Println(item.href)
+		if _, ok := unique[item.url.String()]; !ok {
+			unique[item.url.String()] = item.url
+		}
 	}
-
-	return
 }
 
 type lexer struct {
@@ -58,12 +74,12 @@ func (l *lexer) run() {
 }
 
 func (l *lexer) emit(href string) {
-	l.items <- item{href}
+	u, _ := url.Parse(href)
+	l.items <- item{u}
 }
 
 type item struct {
-	// TODO: try `type URL` for href
-	href string
+	url *url.URL
 }
 
 type stateFn func(l *lexer) stateFn
@@ -91,7 +107,7 @@ func lexStartTag(l *lexer) stateFn {
 func lexAnchorTag(l *lexer, t *html.Token) stateFn {
 	for _, a := range t.Attr {
 		switch {
-		case strings.HasPrefix(a.Val, "/study/courses/"):
+		case strings.HasPrefix(a.Val, "https://"):
 			l.emit(a.Val)
 			return lexStartTag
 		}
