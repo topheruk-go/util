@@ -50,7 +50,7 @@ func crawl(u string, unique map[string]*url.URL, wg *sync.WaitGroup) {
 		return
 	}
 	defer r.Body.Close()
-	l := lex(r.Body)
+	l := lex(r.Body, 10)
 
 	// FIXME: this needs to be in a go routine
 	for item := range l.items {
@@ -65,10 +65,10 @@ type lexer struct {
 	items chan item
 }
 
-func lex(r io.ReadCloser) (l *lexer) {
+func lex(r io.ReadCloser, buf int) (l *lexer) {
 	l = &lexer{
 		html.NewTokenizer(r),
-		make(chan item),
+		make(chan item, buf),
 	}
 	go l.run()
 	return
