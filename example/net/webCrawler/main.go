@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
 
 	"golang.org/x/net/html"
 )
@@ -23,11 +24,14 @@ func run() (err error) {
 		return errors.New("please pass in a url(s) as an argument")
 	}
 
+	var wg sync.WaitGroup
 	var unique = map[string]*url.URL{}
+
 	for _, u := range os.Args[1:] {
-		// convert to goroutine
-		crawl(u, unique)
+		wg.Add(1)
+		go crawl(u, unique, &wg)
 	}
+	wg.Wait()
 
 	for url := range unique {
 		fmt.Println(url)
@@ -36,7 +40,9 @@ func run() (err error) {
 	return
 }
 
-func crawl(u string, unique map[string]*url.URL) {
+func crawl(u string, unique map[string]*url.URL, wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	r, err := http.Get(u)
 	if err != nil {
 		return
