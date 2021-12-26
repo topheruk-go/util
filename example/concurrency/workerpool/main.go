@@ -1,29 +1,55 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func main() {
-	s := &square{3, 4}
-	print(s)
+	if err := run(); err != nil {
+		panic(err)
+	}
 }
 
-type shape interface {
-	perimter() int
-	area() int
+func run() (err error) {
+	a := newApp(10)
+	sum := a.sum()
+	fmt.Println(sum)
+
+	return
 }
 
-type square struct {
-	x, y int
+type app struct {
+	job, res chan int
 }
 
-func (s *square) area() int {
-	return s.x * s.y
+func newApp(size int) (a *app) {
+	a = &app{
+		job: make(chan int, size),
+		res: make(chan int, size),
+	}
+	go a.spawn()
+
+	return
 }
 
-func (s *square) perimter() int {
-	return 2 * (s.x + s.y)
+func (a *app) spawn() {
+	defer close(a.job)
+	for i := 0; i < cap(a.job); i++ {
+		go a.work()
+		a.job <- i
+	}
 }
 
-func print(s shape) {
-	fmt.Println(s.area(), s.perimter())
+func (a *app) work() {
+	for j := range a.job {
+		a.res <- j + 1
+	}
+}
+
+func (a *app) sum() (sum int) {
+	// TODO: the range synax is nicer
+	for x := 0; x < cap(a.res); x++ {
+		sum += <-a.res
+	}
+	return
 }
