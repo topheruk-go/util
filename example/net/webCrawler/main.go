@@ -13,6 +13,8 @@ import (
 	"golang.org/x/net/html"
 )
 
+// test := go run ./example/net/webCrawler/ https://schier.co https://insomnia.rest
+
 func main() {
 	if err := run(); err != nil {
 		panic(err)
