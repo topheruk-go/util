@@ -2,10 +2,10 @@ package database
 
 import (
 	"context"
+	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type User struct {
@@ -36,23 +36,40 @@ func (db *Database) FindUser(ctx context.Context, filter interface{}) (user *Use
 }
 
 func (db *Database) InsertUser(ctx context.Context, doc interface{}) (id primitive.ObjectID, err error) {
-	// res, err := db.Collection("users").InsertOne(ctx, doc)
-	// if err != nil {
-	// 	return
-	// }
-
-	// return res.InsertedID.(primitive.ObjectID), err
-	z := true
-	return db.UpdateUser(ctx, doc, &z)
-}
-
-func (db *Database) UpdateUser(ctx context.Context, doc interface{}, upsert *bool) (id primitive.ObjectID, err error) {
-	res, err := db.Collection("users").UpdateOne(ctx, bson.M{}, doc, &options.UpdateOptions{Upsert: upsert})
+	res, err := db.Collection("users").InsertOne(ctx, doc)
 	if err != nil {
 		return
 	}
 
-	return res.UpsertedID.(primitive.ObjectID), err
+	return res.InsertedID.(primitive.ObjectID), err
+}
+
+func (db *Database) UpdateUser(ctx context.Context, id primitive.ObjectID, doc interface{}, upsert bool) (up *User, err error) {
+	b, err := bson.Marshal(doc)
+	if err != nil {
+		return
+	}
+
+	var upt bson.D
+	err = bson.Unmarshal(b, &upt)
+	if err != nil {
+		return
+	}
+
+	log.Println(doc)
+	log.Println(upt)
+
+	res := db.Collection("users").FindOneAndUpdate(ctx, bson.D{{"_id", id}}, bson.D{{"$set", upt}})
+
+	if res.Err() != nil {
+		return
+	}
+
+	if err = res.Decode(&up); err != nil {
+		return
+	}
+
+	return
 }
 
 func (db *Database) DeleteUser(ctx context.Context, filter interface{}) (delCount int, err error) {

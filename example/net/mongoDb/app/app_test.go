@@ -18,34 +18,36 @@ import (
 var (
 	username = "topheruk"
 	password = "T^*G7!Pf"
-	host     = "localhost"
+	host     = "192.168.1.173"
 	port     = 27017
 	uri      = fmt.Sprintf("mongodb://%s:%s@%s:%d", username, password, host, port)
 )
 
-type request struct {
-	name        string
+type requestTest struct {
+	desc        string
 	method      string
 	path        string
-	id          string
-	body        string
 	code        int
 	contentType string
 	content     string
 }
 
-var requests = []request{
-	{name: "all users in databse found", method: "GET", path: "/api/v1/users/", contentType: "application/json", code: http.StatusOK},
-	{name: "redirecting if trailing slash exists", method: "GET", path: "/api/v1/users", contentType: "application/json", code: http.StatusNotFound},
-	{name: "user found in database", method: "GET", path: "/api/v1/users/61ce33e3928e6155964a629f", contentType: "application/json", code: http.StatusOK},
-	{name: "requesting with invalid id", method: "GET", path: "/api/v1/users/34ce33e5964a629f", contentType: "application/json", code: http.StatusBadRequest},
-	{name: "no user with valid id", method: "GET", path: "/api/v1/users/34ce33e3928e6155964a629f", contentType: "application/json", code: http.StatusInternalServerError},
-	{name: "creating a new user", method: "POST", path: "/api/v1/users/", contentType: "application/json", content: `{ "name":"Justin", "age":15 }`, code: http.StatusOK},
-	{name: "invalid create user request", method: "POST", path: "/api/v1/users/", contentType: "application/json", content: `{ "name":"Justin" }`, code: http.StatusBadRequest},
+var requests = []requestTest{
+	{desc: "all users in databse found", method: "GET", path: "/api/v1/users/", contentType: "application/json", code: http.StatusOK},
+	{desc: "redirecting if trailing slash exists", method: "GET", path: "/api/v1/users", contentType: "application/json", code: http.StatusNotFound},
+	{desc: "user found in database", method: "GET", path: "/api/v1/users/61ce33e3928e6155964a629f", contentType: "application/json", code: http.StatusOK},
+	{desc: "requesting with invalid id", method: "GET", path: "/api/v1/users/34ce33e5964a629f", contentType: "application/json", code: http.StatusBadRequest},
+	{desc: "no user with valid id", method: "GET", path: "/api/v1/users/34ce33e3928e6155964a629f", contentType: "application/json", code: http.StatusInternalServerError},
+	{desc: "creating a new user", method: "POST", path: "/api/v1/users/", contentType: "application/json", content: `{ "name":"Justin", "age":15 }`, code: http.StatusOK},
+	{desc: "invalid create user request", method: "POST", path: "/api/v1/users/", contentType: "application/json", content: `{ "name":"Justin" }`, code: http.StatusBadRequest},
 }
 
-var createRequests = []request{
-	{name: "creating a new user", method: "POST", path: "/api/v1/users/", contentType: "application/json", content: `{ "name":"Dave", "age":15 }`, code: http.StatusOK},
+var createRequests = []requestTest{
+	{desc: "creating a new user", method: "POST", path: "/api/v1/users/", contentType: "application/json", content: `{ "name":"Dasd", "age":15 }`, code: http.StatusOK},
+}
+
+var deleteRequest = []requestTest{
+	{desc: "delete a user", method: "PUT", path: "/api/v1/users/61cf50b9caf825afd4391af6", contentType: "application/json", content: `{"name":"John", "age":23 }`, code: http.StatusOK},
 }
 
 func TestRequest(t *testing.T) {
@@ -61,15 +63,16 @@ func TestRequest(t *testing.T) {
 	srv := httptest.NewServer(app.New(db))
 	defer srv.Close()
 
-	// TODO: test concurrently?
-	for _, f := range createRequests {
-		if err = hitEndpoint(srv, &f); err != nil {
-			t.Fatalf("%v;%v", f.name, err)
-		}
+	for _, f := range deleteRequest {
+		t.Run(f.desc, func(t *testing.T) {
+			if err = hitEndpoint(srv, &f); err != nil {
+				t.Error(err)
+			}
+		})
 	}
 }
 
-func hitEndpoint(srv *httptest.Server, f *request) (err error) {
+func hitEndpoint(srv *httptest.Server, f *requestTest) (err error) {
 	req, err := http.NewRequest(f.method, srv.URL+f.path, bytes.NewBufferString(f.content))
 	req.Header.Set("Content-Type", f.contentType)
 	if err != nil {
