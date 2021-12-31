@@ -41,7 +41,7 @@ func run() (err error) {
 
 	db := client.Database("company").Collection("users")
 
-	var doc bson.M
+	var doc bson.D
 	if err = db.FindOne(ctx, bson.M{}).Decode(&doc); err != nil {
 		return
 	}
