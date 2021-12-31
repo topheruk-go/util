@@ -1,6 +1,7 @@
 package app_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -18,21 +19,32 @@ var (
 	username = "topheruk"
 	password = "T^*G7!Pf"
 	host     = "localhost"
-	cliPort  = 27017
-	srvPort  = 8000
-	uri      = fmt.Sprintf("mongodb://%s:%s@%s:%d", username, password, host, cliPort)
+	port     = 27017
+	uri      = fmt.Sprintf("mongodb://%s:%s@%s:%d", username, password, host, port)
 )
 
-type method int
+type foo struct {
+	name        string
+	method      string
+	path        string
+	id          string
+	body        string
+	code        int
+	contentType string
+	content     string
+}
 
-const (
-	Get method = iota
-	Post
-	Put
-	Delete
-)
+var footest = []foo{
+	{name: "all users in databse found", method: "GET", path: "/api/v1/users/", contentType: "application/json", code: http.StatusOK},
+	{name: "redirecting if trailing slash exists", method: "GET", path: "/api/v1/users", contentType: "application/json", code: http.StatusNotFound},
+	{name: "user found in database", method: "GET", path: "/api/v1/users/61ce33e3928e6155964a629f", contentType: "application/json", code: http.StatusOK},
+	{name: "requesting with invalid id", method: "GET", path: "/api/v1/users/34ce33e5964a629f", contentType: "application/json", code: http.StatusBadRequest},
+	{name: "no user with valid id", method: "GET", path: "/api/v1/users/34ce33e3928e6155964a629f", contentType: "application/json", code: http.StatusInternalServerError},
+	{name: "creating a new user", method: "POST", path: "/api/v1/users/", contentType: "application/json", content: `{ "name":"Justin", "age":15 }`, code: http.StatusOK},
+	{name: "invalid create user request", method: "POST", path: "/api/v1/users/", contentType: "application/json", content: `{ "name":"Justin" }`, code: http.StatusBadRequest},
+}
 
-func TestFindAllUsers(t *testing.T) {
+func TestRequest(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -45,57 +57,29 @@ func TestFindAllUsers(t *testing.T) {
 	srv := httptest.NewServer(app.New(db))
 	defer srv.Close()
 
-	res, err := http.Get(fmt.Sprintf("%s/api/v1/users/", srv.URL))
-	if err != nil {
-		t.Fatalf("could not send GET request: %v", err)
-	}
-
-	if res.StatusCode != http.StatusOK {
-		t.Errorf("expected status Ok; got %v", res.Status)
-	}
-}
-
-type endpointTest struct {
-	Name       string
-	Id         string
-	StatusCode int
-}
-
-func TestFindUser(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	db, err := database.New(ctx, uri, "company")
-	if err != nil {
-		return
-	}
-	defer db.Disconnect(ctx)
-
-	srv := httptest.NewServer(app.New(db))
-	defer srv.Close()
-
-	ep := []endpointTest{
-		{Name: "Finding User; OK", Id: "61ceea9b0fa3d8b8c5bd9292", StatusCode: http.StatusOK},
-		{Name: "Finding User; OK", Id: "61ce33e3928e6155964a629f", StatusCode: http.StatusOK},
-		{Name: "Finding User; DB Search Error", Id: "34ce33e3928e6155964a629f", StatusCode: http.StatusInternalServerError},
-		{Name: "Finding User; MongoDB ObjectID convertion", Id: "34ce33e5964a629f", StatusCode: http.StatusInternalServerError},
-	}
-
-	for _, e := range ep {
-		if err := getUser(srv, e); err != nil {
+	// TODO: test concurrently?
+	for _, f := range footest {
+		if err = hitEndpoint(srv, &f); err != nil {
 			t.Fatal(err)
 		}
 	}
 }
 
-func getUser(srv *httptest.Server, e endpointTest) error {
-	res, err := http.Get(fmt.Sprintf("%s/api/v1/users/%s", srv.URL, e.Id))
+func hitEndpoint(srv *httptest.Server, f *foo) (err error) {
+	req, err := http.NewRequest(f.method, srv.URL+f.path, bytes.NewBufferString(f.content))
+	req.Header.Set("Content-Type", f.contentType)
 	if err != nil {
-		return fmt.Errorf("could not send GET request: %v", err)
+		return
 	}
 
-	if res.StatusCode != e.StatusCode {
-		return fmt.Errorf("expected %v; got %v", e.StatusCode, res.Status)
+	res, err := srv.Client().Do(req)
+	if err != nil {
+		return
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != f.code {
+		return fmt.Errorf("expected %v; got %v", f.code, res.Status)
 	}
 
 	b, err := ioutil.ReadAll(res.Body)
@@ -103,13 +87,12 @@ func getUser(srv *httptest.Server, e endpointTest) error {
 		return fmt.Errorf("could not read response: %v", err)
 	}
 
-	// If there is an error, there is no way to do further checks
 	if res.StatusCode == http.StatusOK {
-		var u database.User
-		if err := json.Unmarshal(b, &u); err != nil {
+		var v interface{}
+		if err := json.Unmarshal(b, &v); err != nil {
 			return fmt.Errorf("could not unmarshal body: %v", err)
 		}
 	}
 
-	return nil
+	return
 }

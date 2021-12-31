@@ -20,6 +20,7 @@ func (a *app) routes() {
 
 func (a *app) findAllUsers() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
+		// I can assume this is almost impossible to fail
 		users, err := a.db.FindManyUsers(r.Context(), bson.D{})
 		if err != nil {
 			a.respond(rw, r, nil, http.StatusInternalServerError)
@@ -34,7 +35,7 @@ func (a *app) findUser() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		id, err := primitive.ObjectIDFromHex(chi.URLParamFromCtx(r.Context(), "id"))
 		if err != nil {
-			a.respond(rw, r, nil, http.StatusInternalServerError)
+			a.respond(rw, r, nil, http.StatusBadRequest)
 			return
 		}
 
@@ -62,6 +63,7 @@ func (a *app) createUser() http.HandlerFunc {
 			return
 		}
 
+		// TODO: This will fail if user already exists in Database
 		id, err := a.db.InsertUser(r.Context(), res)
 		if err != nil {
 			a.respond(rw, r, nil, http.StatusInternalServerError)
