@@ -3,7 +3,9 @@ package database
 import (
 	"context"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type User struct {
@@ -29,22 +31,31 @@ func (db *Database) FindManyUsers(ctx context.Context, filter interface{}) (user
 }
 
 func (db *Database) FindUser(ctx context.Context, filter interface{}) (user *User, err error) {
-	var el User
-	err = db.Collection("users").FindOne(ctx, filter).Decode(&el)
-	return &el, err
+	err = db.Collection("users").FindOne(ctx, filter).Decode(&user)
+	return
 }
 
 func (db *Database) InsertUser(ctx context.Context, doc interface{}) (id primitive.ObjectID, err error) {
-	res, err := db.Collection("users").InsertOne(ctx, doc)
+	// res, err := db.Collection("users").InsertOne(ctx, doc)
+	// if err != nil {
+	// 	return
+	// }
+
+	// return res.InsertedID.(primitive.ObjectID), err
+	z := true
+	return db.UpdateUser(ctx, doc, &z)
+}
+
+func (db *Database) UpdateUser(ctx context.Context, doc interface{}, upsert *bool) (id primitive.ObjectID, err error) {
+	res, err := db.Collection("users").UpdateOne(ctx, bson.M{}, doc, &options.UpdateOptions{Upsert: upsert})
 	if err != nil {
 		return
 	}
 
-	return res.InsertedID.(primitive.ObjectID), err
+	return res.UpsertedID.(primitive.ObjectID), err
 }
 
-func (db *Database) DeleteUser(ctx context.Context, filter interface{}) {
-	// del, err := db.Collection("users").DeleteOne(ctx, filter)
-
-	// del.DeletedCount
+func (db *Database) DeleteUser(ctx context.Context, filter interface{}) (delCount int, err error) {
+	del, err := db.Collection("users").DeleteOne(ctx, filter)
+	return int(del.DeletedCount), err
 }

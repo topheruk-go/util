@@ -23,7 +23,7 @@ var (
 	uri      = fmt.Sprintf("mongodb://%s:%s@%s:%d", username, password, host, port)
 )
 
-type foo struct {
+type request struct {
 	name        string
 	method      string
 	path        string
@@ -34,7 +34,7 @@ type foo struct {
 	content     string
 }
 
-var footest = []foo{
+var requests = []request{
 	{name: "all users in databse found", method: "GET", path: "/api/v1/users/", contentType: "application/json", code: http.StatusOK},
 	{name: "redirecting if trailing slash exists", method: "GET", path: "/api/v1/users", contentType: "application/json", code: http.StatusNotFound},
 	{name: "user found in database", method: "GET", path: "/api/v1/users/61ce33e3928e6155964a629f", contentType: "application/json", code: http.StatusOK},
@@ -42,6 +42,10 @@ var footest = []foo{
 	{name: "no user with valid id", method: "GET", path: "/api/v1/users/34ce33e3928e6155964a629f", contentType: "application/json", code: http.StatusInternalServerError},
 	{name: "creating a new user", method: "POST", path: "/api/v1/users/", contentType: "application/json", content: `{ "name":"Justin", "age":15 }`, code: http.StatusOK},
 	{name: "invalid create user request", method: "POST", path: "/api/v1/users/", contentType: "application/json", content: `{ "name":"Justin" }`, code: http.StatusBadRequest},
+}
+
+var createRequests = []request{
+	{name: "creating a new user", method: "POST", path: "/api/v1/users/", contentType: "application/json", content: `{ "name":"Dave", "age":15 }`, code: http.StatusOK},
 }
 
 func TestRequest(t *testing.T) {
@@ -58,14 +62,14 @@ func TestRequest(t *testing.T) {
 	defer srv.Close()
 
 	// TODO: test concurrently?
-	for _, f := range footest {
+	for _, f := range createRequests {
 		if err = hitEndpoint(srv, &f); err != nil {
-			t.Fatal(err)
+			t.Fatalf("%v;%v", f.name, err)
 		}
 	}
 }
 
-func hitEndpoint(srv *httptest.Server, f *foo) (err error) {
+func hitEndpoint(srv *httptest.Server, f *request) (err error) {
 	req, err := http.NewRequest(f.method, srv.URL+f.path, bytes.NewBufferString(f.content))
 	req.Header.Set("Content-Type", f.contentType)
 	if err != nil {
