@@ -1,0 +1,8 @@
+curl -X POST http://localhost:8000/api/v1/users/  
+-Content-Type: "Content-Type: application/json" 
+-H 'Cache-Control: no-cache'
+-d '{ "name":"Jake", "age":123 }'
+###
+curl -X GET http://localhost:8000/api/v1/users/
+###
+curl -X GET http://localhost:8000/api/v1/users/
