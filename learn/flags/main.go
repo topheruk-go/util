@@ -20,12 +20,14 @@ func main() {
 	}
 }
 
+// this would be a main struct
 type User struct {
 	Id   primitive.ObjectID `json:"id"`
 	Name string             `json:"name"`
 	Age  int                `json:"age"`
 }
 
+// This would be inside a handler
 type response struct {
 	Name string `bson:"name"`
 	Age  int    `bson:"age"`
@@ -57,22 +59,21 @@ func run() (err error) {
 	db := client.Database("company")
 
 	// Create User
-	response := &struct {
-		Name string `bson:"name"`
-		Age  int    `bson:"age"`
-	}{"Ysidssn", 23}
+	response := &response{"Two", 41}
 
 	err = Validate(ctx, db, "./learn/flags/users.validation.json", response)
 	if err != nil {
 		return
 	}
 
-	upt, err := InsertOne(ctx, db, response)
+	id, err := InsertOne(ctx, db, response)
 	if err != nil {
 		return
 	}
 
-	fmt.Println(upt)
+	fmt.Println(id)
+	// switch-case on result
+	// if res.UpsertID == nil { return nil, fmt.Errorf("user already exists in collection") }
 
 	fmt.Println("successful")
 	return
@@ -89,7 +90,7 @@ func CmdFlags() (username, password *string, address *int) {
 
 // FIXME: this works(?) but the command can fail at times
 // need to understand what those cases are
-func InsertOne(ctx context.Context, db *mongo.Database, v interface{}) (*mongo.UpdateResult, error) {
+func InsertOne(ctx context.Context, db *mongo.Database, v interface{}) (*primitive.ObjectID, error) {
 	b, err := bson.Marshal(v)
 	if err != nil {
 		return nil, err
@@ -106,7 +107,13 @@ func InsertOne(ctx context.Context, db *mongo.Database, v interface{}) (*mongo.U
 		return nil, err
 	}
 
-	return res, err
+	if res.UpsertedID == nil {
+		// FIXME: give a more meaningful error message
+		return nil, fmt.Errorf("user already exists in collection")
+	}
+
+	id := res.UpsertedID.(primitive.ObjectID)
+	return &id, err
 }
 
 // TODO: add to main project as I think I undersatnd now
