@@ -1,0 +1,18 @@
+{
+    "collMod": "bar",
+    "validator": {
+        "$jsonSchema": {
+            "bsonType": "object",
+            "required": [
+                "value"
+            ],
+            "properties": {
+                "value": {
+                    "bsonType": "string",
+                    "minLength": 5,
+                    "description": "must be a string and is required"
+                }
+            }
+        }
+    }
+}
