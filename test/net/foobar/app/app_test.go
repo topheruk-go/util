@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
@@ -30,15 +32,16 @@ var qs = []request{
 	// delete methods required
 }
 
-// var user, pass *string
+var user = flag.String("user", "", "client username")
+var pass = flag.String("pass", "", "client username")
 
-// func TestMain(m *testing.M) {
-// 	user, pass, _ = parse.Flags()
-// 	os.Exit(m.Run())
-// }
+func TestMain(m *testing.M) {
+	flag.Parse()
+	os.Exit(m.Run())
+}
 
 func TestRequest(t *testing.T) {
-	uri := fmt.Sprintf("mongodb://%s:%s@localhost:27017", "topheruk", "T^*G7!Pf")
+	uri := fmt.Sprintf("mongodb://%s:%s@localhost:27017", *user, *pass)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
