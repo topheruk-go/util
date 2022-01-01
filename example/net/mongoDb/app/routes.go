@@ -1,8 +1,10 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"sync"
 
 	"github.com/go-chi/chi/v5"
 	"go.mongodb.org/mongo-driver/bson"
@@ -16,9 +18,9 @@ func (a *app) routes() {
 	// FIXME: would like to still be able to have trailing slashes route
 	a.m.Get("/api/v1/users/", a.findAllUsers())
 	a.m.Get("/api/v1/users/{id}", a.findUser())
-	a.m.Post("/api/v1/users/", a.createUser())
-	a.m.Put("/api/v1/users/{id}", a.updateUser())
-	a.m.Delete("/api/v1/users/{id}", a.deleteUser())
+	a.m.Post("/api/v1/users/", a.createUser("./example/net/mongoDb/database/user.schema.json"))
+	// a.m.Put("/api/v1/users/{id}", a.updateUser())
+	// a.m.Delete("/api/v1/users/{id}", a.deleteUser())
 }
 
 func (a *app) ping(rw http.ResponseWriter, r *http.Request) {
@@ -56,24 +58,40 @@ func (a *app) findUser() http.HandlerFunc {
 	}
 }
 
-func (a *app) createUser() http.HandlerFunc {
+func (a *app) createUser(schemaUri string) http.HandlerFunc {
 	type response struct {
-		Name string `bson:"name"`
-		Age  int    `bson:"age" validate:"required"`
+		Name string `json:"name,omitempty" bson:"name"`
+		Age  int    `json:"age" bson:"age"`
 	}
 
-	return func(rw http.ResponseWriter, r *http.Request) {
-		var res response
+	var (
+		init   sync.Once
+		err    error
+		schema func(ctx context.Context) error
+	)
 
+	init.Do(func() { schema, err = a.db.SetValidator(schemaUri) })
+
+	return func(rw http.ResponseWriter, r *http.Request) {
+		// if err := a.db.SetValidator(r.Context(), schemaUri); err != nil {
+		// 	a.respond(rw, r, nil, http.StatusInternalServerError)
+		// 	return
+		// }
+
+		if err = schema(r.Context()); err != nil {
+			a.respond(rw, r, nil, http.StatusInternalServerError)
+			return
+		}
+
+		var res response
 		if err := a.decode(rw, r, &res); err != nil {
 			a.respond(rw, r, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		// TODO: This will fail if user already exists in Database
-		id, err := a.db.InsertUser(r.Context(), res)
+		id, err := a.db.InsertOneUser(r.Context(), res)
 		if err != nil {
-			a.respond(rw, r, nil, http.StatusInternalServerError)
+			a.respond(rw, r, err.Error(), http.StatusInternalServerError)
 			return
 		}
 

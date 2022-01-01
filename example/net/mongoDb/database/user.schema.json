@@ -1,12 +1,15 @@
 {
-   "collMod":"users",
+   "collMod": "users",
    "validator": {
       "$jsonSchema": {
          "bsonType": "object",
-         "required": ["name"],
+         "required": [
+            "name"
+         ],
          "properties": {
             "name": {
                "bsonType": "string",
+               "minLength": 5,
                "description": "must be a string and is required"
             }
          }

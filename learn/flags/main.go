@@ -2,10 +2,7 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"flag"
 	"fmt"
-	"io/ioutil"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -15,35 +12,99 @@ import (
 )
 
 func main() {
-	if err := run(); err != nil {
+	if err := run2(); err != nil {
 		panic(err)
 	}
 }
 
-// this would be a main struct
 type User struct {
-	Id   primitive.ObjectID `json:"id"`
-	Name string             `json:"name"`
-	Age  int                `json:"age"`
+	Id    int    `json:"id"`
+	Name  string `json:"name"`
+	Email int    `json:"email"`
 }
 
-// This would be inside a handler
-type response struct {
-	Name string `bson:"name"`
-	Age  int    `bson:"age"`
-}
-
-func run() (err error) {
-	user, pass, _ := CmdFlags()
+func run2() (err error) {
+	name, pass, _ := CmdFlags()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	client, err := mongo.NewClient(options.Client().ApplyURI(
-		// uri,
-		fmt.Sprintf("mongodb://%s:%s@localhost:27017/", *user, *pass),
-	))
+	db, err := newDatabase(ctx, fmt.Sprintf("mongodb://%s:%s@localhost:27017", *name, *pass), "company")
+	if err != nil {
+		return
+	}
+	defer db.Client().Disconnect(ctx)
 
+	app := NewApp(db)
+
+	if err = app.handleInsertUser(ctx, "./learn/flags/users.validation.json"); err != nil {
+		return
+	}
+
+	if err = app.handleInsertUserTwo(ctx, "./learn/flags/users.validation.json"); err != nil {
+		return
+	}
+
+	fmt.Println("success")
+	return
+}
+
+// APP.GO
+type app struct {
+	db *database
+}
+
+func NewApp(db *database) *app {
+	a := &app{db}
+	return a
+}
+
+func (a *app) handleInsertUser(ctx context.Context, schema string) (err error) {
+	type res struct {
+		Name string `bson:"not_name"`
+	}
+
+	if err = a.db.SetValidator(ctx, "users", schema); err != nil {
+		return
+	}
+
+	//inside closure
+	r := &res{"One"}
+	id, err := a.db.InsertOneUser(ctx, r)
+	if err != nil {
+		return
+	}
+
+	fmt.Println(id)
+	return nil
+}
+
+func (a *app) handleInsertUserTwo(ctx context.Context, schema string) (err error) {
+	type res struct {
+		Name string `bson:"name"`
+	}
+
+	if err = a.db.SetValidator(ctx, "users", schema); err != nil {
+		return
+	}
+
+	r := &res{"Two"}
+	id, err := a.db.InsertOneUser(ctx, r)
+	if err != nil {
+		return
+	}
+
+	fmt.Println(id)
+	return nil
+}
+
+// DATABASE.GO
+type database struct {
+	*mongo.Database
+}
+
+func newDatabase(ctx context.Context, uri, dbName string) (db *database, err error) {
+	client, err := mongo.NewClient(options.Client().ApplyURI(uri))
 	if err != nil {
 		return
 	}
@@ -52,97 +113,34 @@ func run() (err error) {
 	if err != nil {
 		return
 	}
-	defer client.Disconnect(ctx)
 
-	fmt.Println("connected")
+	return &database{client.Database(dbName)}, nil
+}
 
-	db := client.Database("company")
-
-	// Create User
-	response := &response{"Two", 41}
-
-	err = Validate(ctx, db, "./learn/flags/users.validation.json", response)
+func (d *database) SetValidator(ctx context.Context, collMod, schema string) (err error) {
+	doc, err := parseSchema(schema)
 	if err != nil {
 		return
 	}
 
-	id, err := InsertOne(ctx, db, response)
-	if err != nil {
-		return
-	}
-
-	fmt.Println(id)
-	// switch-case on result
-	// if res.UpsertID == nil { return nil, fmt.Errorf("user already exists in collection") }
-
-	fmt.Println("successful")
-	return
+	return d.RunCommand(ctx, doc).Err()
 }
 
-func CmdFlags() (username, password *string, address *int) {
-	username = flag.String("u", "", "database client username:password")
-	password = flag.String("p", "", "database client password")
-	address = flag.Int("a", 8000, "server port number")
-
-	flag.Parse()
-	return
-}
-
-// FIXME: this works(?) but the command can fail at times
-// need to understand what those cases are
-func InsertOne(ctx context.Context, db *mongo.Database, v interface{}) (*primitive.ObjectID, error) {
-	b, err := bson.Marshal(v)
+func (d *database) InsertOneUser(ctx context.Context, v interface{}) (*primitive.ObjectID, error) {
+	doc, err := toDoc(v)
 	if err != nil {
 		return nil, err
 	}
 
-	var doc bson.D
-	err = bson.Unmarshal(b, &doc)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := db.Collection("users").UpdateOne(ctx, doc, bson.D{{"$set", doc}}, options.Update().SetUpsert(true))
+	res, err := d.Collection("users").UpdateOne(ctx, doc, bson.D{{"$set", doc}}, options.Update().SetUpsert(true))
 	if err != nil {
 		return nil, err
 	}
 
 	if res.UpsertedID == nil {
-		// FIXME: give a more meaningful error message
 		return nil, fmt.Errorf("user already exists in collection")
 	}
 
 	id := res.UpsertedID.(primitive.ObjectID)
 	return &id, err
-}
-
-// TODO: add to main project as I think I undersatnd now
-func Validate(ctx context.Context, db *mongo.Database, url string, v interface{}) (err error) {
-	doc, err := parseJsonFile(url)
-	if err != nil {
-		return
-	}
-
-	return db.RunCommand(ctx, doc).Decode(v)
-}
-
-// FIXME: messy but works
-func parseJsonFile(url string) (doc bson.D, err error) {
-	content, err := ioutil.ReadFile(url)
-	if err != nil {
-		return
-	}
-
-	var tmp interface{}
-	if err = json.Unmarshal(content, &tmp); err != nil {
-		return
-	}
-
-	vb, err := bson.Marshal(tmp)
-	if err != nil {
-		return
-	}
-
-	err = bson.Unmarshal(vb, &doc)
-	return
 }

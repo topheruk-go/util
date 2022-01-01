@@ -2,9 +2,13 @@ package database
 
 import (
 	"context"
+	"fmt"
+
+	"github.com/topheruk/go/src/parse"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type User struct {
@@ -41,6 +45,22 @@ func (db *Database) InsertUser(ctx context.Context, doc interface{}) (id primiti
 	}
 
 	return res.InsertedID.(primitive.ObjectID), err
+}
+
+func (db *Database) InsertOneUser(ctx context.Context, v interface{}) (primitive.ObjectID, error) {
+	doc, err := parse.ToDoc(v)
+
+	res, err := db.Collection("users").UpdateOne(ctx, doc, bson.D{{"$set", doc}}, options.Update().SetUpsert(true))
+	if err != nil {
+		return primitive.NilObjectID, err
+	}
+
+	if res.UpsertedID == nil {
+		return primitive.NilObjectID, fmt.Errorf("user already exists in collection")
+	}
+
+	id := res.UpsertedID.(primitive.ObjectID)
+	return id, err
 }
 
 func (db *Database) UpdateUser(ctx context.Context, id primitive.ObjectID, doc interface{}, upsert bool) (up *User, err error) {

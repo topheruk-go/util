@@ -24,15 +24,15 @@ var (
 	host     = ""
 	cliPort  = 27017
 	srvPort  = 8000
-	uri      = fmt.Sprintf("mongodb://%s:%s@%s:%d", username, password, host, cliPort)
 )
 
 func run() (err error) {
-	// TODO: arg flags parsing
+	user, pass, port := parseFlags()
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	db, err := database.New(ctx, uri, "company")
+	db, err := database.New(ctx, fmt.Sprintf("mongodb://%s:%s@localhost:27017", *user, *pass), "company")
 	if err != nil {
 		return
 	}
@@ -41,7 +41,7 @@ func run() (err error) {
 	app := app.New(db)
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", srvPort),
+		Addr:    fmt.Sprintf(":%d", *port),
 		Handler: app,
 	}
 
