@@ -7,7 +7,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/topheruk/go/src/parse"
-	db "github.com/topheruk/go/test/net/foobar/database"
+
+	db "github.com/topheruk/go/example/net/mongoDb/database"
 )
 
 type app struct {

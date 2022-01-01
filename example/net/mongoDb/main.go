@@ -8,8 +8,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/topheruk/go/test/net/foobar/app"
-	db "github.com/topheruk/go/test/net/foobar/database"
+	"github.com/topheruk/go/example/net/mongoDb/app"
+	db "github.com/topheruk/go/example/net/mongoDb/database"
 )
 
 func main() {
