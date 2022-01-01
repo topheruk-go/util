@@ -19,9 +19,9 @@ func main() {
 }
 
 var (
-	username = "topheruk"
-	password = "T^*G7!Pf"
-	host     = "192.168.1.173"
+	username = ""
+	password = ""
+	host     = ""
 	cliPort  = 27017
 	srvPort  = 8000
 	uri      = fmt.Sprintf("mongodb://%s:%s@%s:%d", username, password, host, cliPort)
