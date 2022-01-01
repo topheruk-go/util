@@ -13,7 +13,7 @@ import (
 var (
 	username = "topheruk"
 	password = "T^*G7!Pf"
-	host     = "192.168.1.173"
+	host     = "localhost"
 	port     = 27017
 	uri      = fmt.Sprintf("mongodb://%s:%s@%s:%d", username, password, host, port)
 )

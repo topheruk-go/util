@@ -1,0 +1,21 @@
+{
+    "collMod":"users",
+    "validator": {
+       "$jsonSchema": {
+          "bsonType": "object",
+          "required": [ "name", "age" ],
+          "properties": {
+             "name": {
+                "bsonType": "string",
+                "description": "must be a string and is required"
+             },
+             "age": {
+                "bsonType": "int",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "must be an integer in [ 0, 100 ] and is required"
+            }
+            }
+       }
+    }
+}

@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -55,9 +54,6 @@ func (db *Database) UpdateUser(ctx context.Context, id primitive.ObjectID, doc i
 	if err != nil {
 		return
 	}
-
-	log.Println(doc)
-	log.Println(upt)
 
 	res := db.Collection("users").FindOneAndUpdate(ctx, bson.D{{"_id", id}}, bson.D{{"$set", upt}})
 
