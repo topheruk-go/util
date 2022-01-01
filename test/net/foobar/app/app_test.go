@@ -27,6 +27,7 @@ type request struct {
 var qs = []request{
 	{desc: "add to bar collection", method: "POST", path: "/api/v1/bar/", contentType: "application/json", content: `{ "value":"Value" }`, code: http.StatusOK},
 	{desc: "add to foo collection", method: "POST", path: "/api/v1/foo/", contentType: "application/json", content: `{ "value":100 }`, code: http.StatusOK},
+	// delete methods required
 }
 
 // var user, pass *string
