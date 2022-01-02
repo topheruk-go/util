@@ -12,7 +12,17 @@ import (
 	db "github.com/topheruk/go/example/net/mongoDb/database"
 )
 
+var user = flag.String("user", "", "client username")
+var pass = flag.String("pass", "", "client username")
+var port = flag.Int("port", 8000, "server port number")
+
+var schemas = []string{
+	"test/net/foobar/database/schema/foo.json",
+	"test/net/foobar/database/schema/bar.json",
+}
+
 func main() {
+	flag.Parse()
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, err.Error())
 		os.Exit(1)
@@ -20,13 +30,8 @@ func main() {
 
 }
 
-var schemas = []string{
-	"test/net/foobar/database/schema/foo.json",
-	"test/net/foobar/database/schema/bar.json",
-}
-
 func run() (err error) {
-	user, pass, port := parseFlags()
+	// user, pass, port := parseFlags()
 	uri := fmt.Sprintf("mongodb://%s:%s@localhost:27017", *user, *pass)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

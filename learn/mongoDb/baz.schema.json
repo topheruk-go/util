@@ -1,0 +1,19 @@
+{
+    "collMod": "baz",
+    "validator": {
+        "$jsonSchema": {
+            "bsonType": "object",
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "bsonType": "string",
+                    "pattern": "(([A-Za-z.]+)|([\\d]{8}))@(stu.)?fra.ac.uk",
+                    "maxLength": 50,
+                    "description": "email is a required field"
+                }
+            }
+        }
+    }
+}

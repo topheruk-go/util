@@ -13,11 +13,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/topheruk/go/test/net/foobar/app"
-	"github.com/topheruk/go/test/net/foobar/database"
+	"github.com/topheruk/go/example/net/mongoDb/app"
+	"github.com/topheruk/go/example/net/mongoDb/database"
 )
 
-type request struct {
+type TestCase struct {
 	desc        string
 	method      string
 	path        string
@@ -26,10 +26,10 @@ type request struct {
 	code        int
 }
 
-var qs = []request{
+var tcs = []TestCase{
 	{desc: "add to bar collection", method: "POST", path: "/api/v1/bar/", contentType: "application/json", content: `{ "value":"Value" }`, code: http.StatusOK},
 	{desc: "add to foo collection", method: "POST", path: "/api/v1/foo/", contentType: "application/json", content: `{ "value":100 }`, code: http.StatusOK},
-	// delete methods required
+	// delete methods required when I figure how to have custom IDs
 }
 
 var user = flag.String("user", "", "client username")
@@ -55,18 +55,18 @@ func TestRequest(t *testing.T) {
 	srv := httptest.NewServer(app.New(db))
 	defer srv.Close()
 
-	for _, q := range qs {
-		t.Run(q.desc, func(t *testing.T) {
-			if err = NewRequest(srv, &q); err != nil {
+	for _, tc := range tcs {
+		t.Run(tc.desc, func(t *testing.T) {
+			if err = run(srv, &tc); err != nil {
 				t.Error(err)
 			}
 		})
 	}
 }
 
-func NewRequest(srv *httptest.Server, t *request) (err error) {
-	q, err := http.NewRequest(t.method, srv.URL+t.path, bytes.NewBufferString(t.content))
-	q.Header.Set("Content-Type", t.contentType)
+func run(srv *httptest.Server, tc *TestCase) (err error) {
+	q, err := http.NewRequest(tc.method, srv.URL+tc.path, bytes.NewBufferString(tc.content))
+	q.Header.Set("Content-Type", tc.contentType)
 	if err != nil {
 		return
 	}
@@ -77,8 +77,8 @@ func NewRequest(srv *httptest.Server, t *request) (err error) {
 	}
 	defer r.Body.Close()
 
-	if r.StatusCode != t.code {
-		return fmt.Errorf("expected %v; got %v", t.code, r.Status)
+	if r.StatusCode != tc.code {
+		return fmt.Errorf("expected %v; got %v", tc.code, r.Status)
 	}
 
 	b, err := ioutil.ReadAll(r.Body)

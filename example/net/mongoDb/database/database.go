@@ -45,18 +45,6 @@ func (db *Database) SetupValidation(ctx context.Context, schemaUrls ...string) e
 	return nil
 }
 
-// func (db *Database) SetValidator(ctx context.Context, schemaUri string) error {
-// 	doc, err := parse.BsonCmd(schemaUri)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	log.Println(doc)
-// 	// return func(ctx context.Context) error {
-// 	// 	}, err
-// 	return db.RunCommand(ctx, doc).Err()
-// }
-
 func (db *Database) InsertOne(ctx context.Context, collName string, v interface{}) (primitive.ObjectID, error) {
 	doc, err := parse.ToDoc(v) //may not be needed
 	if err != nil {
