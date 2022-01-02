@@ -31,27 +31,31 @@ func main() {
 }
 
 func run() (err error) {
-	cfg, err := env()
+	cfg, err := env("learn/mongodb/one-to-many/.env")
 	if err != nil {
 		return
 	}
 
-	fmt.Println(cfg.Foo)
+	fmt.Println(cfg)
 
 	return
 }
 
 type Config struct {
-	Foo string
+	Username string
+	Password string
+	Addr     string
 }
 
-func env() (cfg *Config, err error) {
-	err = godotenv.Load("learn/mongodb/one-to-many/.env")
+func env(path string) (cfg *Config, err error) {
+	err = godotenv.Load(path)
 	if err != nil {
 		return
 	}
 
 	return &Config{
-		Foo: os.Getenv("FOO"),
+		os.Getenv("DB_USERNAME"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_ADDRESS"),
 	}, nil
 }
