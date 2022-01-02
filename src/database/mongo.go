@@ -58,9 +58,18 @@ func (db *MongoDB) InsertOne(ctx context.Context, collName string, v interface{}
 		return fmt.Errorf("user already exists in collection")
 	}
 
-	return err
+	return nil
 }
 
-func (db *MongoDB) InsertMany(ctx context.Context, collName string, vs []interface{}) {
-	// db.Collection(collName).UpdateMany(ctx, vs)
+func (db *MongoDB) DeleteOne(ctx context.Context, collName string, id string) error {
+	res, err := db.Collection(collName).DeleteOne(ctx, bson.M{"_id": id})
+	if err != nil {
+		return err
+	}
+
+	if res.DeletedCount == 0 {
+		return fmt.Errorf("no user was deleted; invalid id %s", id)
+	}
+
+	return nil
 }
