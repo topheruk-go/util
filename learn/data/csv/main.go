@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/topheruk/go/learn/data/csv/serde"
@@ -31,13 +32,15 @@ func run() (err error) {
 	}
 	defer fw.Close()
 
-	csv, _ := serde.New(fw, fr, &serde.Options{})
+	csv, _ := serde.NewCSV(fw, fr, &serde.Options{})
 
 	// Reader
 	var users []User
 	for csv.Scan() {
 		var u User
-		csv.Decode(&u)
+		if csv.Decode(&u) == io.EOF {
+			break
+		}
 		users = append(users, u)
 	}
 
@@ -48,10 +51,6 @@ func run() (err error) {
 	defer csv.Flush()
 
 	return
-}
-
-func Read(users []User) error {
-	return nil
 }
 
 type User struct {
