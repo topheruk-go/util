@@ -28,7 +28,8 @@ func run() (err error) {
 	defer f.Close()
 
 	var buf bytes.Buffer
-	app, err := app.New(&buf, f, &app.AppOptions{})
+
+	app, err := app.New(&buf, f, &app.Options{})
 	if err != nil {
 		return
 	}
@@ -50,7 +51,6 @@ func run() (err error) {
 			return
 		}
 	}
-
 	if err = app.Flush(); err != nil {
 		return
 	}

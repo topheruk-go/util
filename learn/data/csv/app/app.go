@@ -22,19 +22,20 @@ type App struct {
 }
 
 // TODO: need to prettify
-type AppOptions struct {
+type Options struct {
 	SetHeader bool
+	UseCRLF   bool
 	Comma     rune
 	Comment   rune
 	Schema    interface{}
 }
 
-func New(w io.Writer, r io.Reader, options ...*AppOptions) (*App, error) {
+func New(w io.Writer, r io.Reader, options ...*Options) (*App, error) {
 	var h []string
 	a := &App{}
 
 	if options == nil {
-		options = append(options, &AppOptions{})
+		options = append(options, &Options{})
 	}
 
 	if options[0].SetHeader {
@@ -63,7 +64,7 @@ func (a *App) Print() {
 	fmt.Printf("a.w: %v\n", a.w)
 }
 
-func (a *App) newWriter(w io.Writer, options *AppOptions) *csv.Writer {
+func (a *App) newWriter(w io.Writer, options *Options) *csv.Writer {
 	a.w = csv.NewWriter(w)
 	if options != nil {
 		if options.Comma != 0 {
@@ -73,7 +74,7 @@ func (a *App) newWriter(w io.Writer, options *AppOptions) *csv.Writer {
 	return a.w
 }
 
-func (a *App) newReader(r io.Reader, options *AppOptions) *csv.Reader {
+func (a *App) newReader(r io.Reader, options *Options) *csv.Reader {
 	a.r = csv.NewReader(r)
 	if options != nil {
 		if options.Comma != 0 {
