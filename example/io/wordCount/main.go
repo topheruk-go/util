@@ -41,7 +41,7 @@ func newApp(f io.ReadCloser) (a *app) {
 		bufio.NewScanner(f),
 		make(map[string]int),
 	}
-	a.run()
+	go a.run()
 	return a
 }
 

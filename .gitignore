@@ -13,3 +13,5 @@
 
 # Ignore Environmental Variables
 *.env
+
+*.csv

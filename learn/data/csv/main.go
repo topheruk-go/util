@@ -1,60 +1,49 @@
 package main
 
 import (
-	"flag"
+	"bytes"
 	"fmt"
-	"io"
 	"os"
 
+	"github.com/topheruk/go/learn/data/csv/model"
 	"github.com/topheruk/go/learn/data/csv/serde"
 )
 
-var filename = flag.String("f", "", "name given for .csv file")
-
 func main() {
-	flag.Parse()
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}
 }
 
+type app struct {
+	csv map[string]*serde.CSV
+}
+
 func run() (err error) {
-	fr, err := os.Open(fmt.Sprintf("learn/data/csv/data/%s.csv", *filename))
+	fr, err := os.Open("learn/data/csv/data/accounts.csv")
 	if err != nil {
 		return
 	}
 	defer fr.Close()
 
-	fw, err := os.Create("learn/data/csv/data/output.csv")
+	var buf bytes.Buffer
+	// TODO: time should be in format ISO8601:YYYY-MM-DDTHH:MM:SSZ
+	// FIXME: all my csvs have a value for canvas_*_id which does not need to be there
+	csv, err := serde.NewCSV(&buf, fr, &serde.CSVOptions{TimeFormat: "0001-01-01T00:00:00Z"})
 	if err != nil {
 		return
 	}
-	defer fw.Close()
 
-	csv, _ := serde.NewCSV(fw, fr, &serde.Options{})
+	sd := model.AccountSerde{Serde: csv}
 
-	// Reader
-	var users []User
-	for csv.Scan() {
-		var u User
-		if csv.Decode(&u) == io.EOF {
-			break
-		}
-		users = append(users, u)
+	v, err := sd.Get()
+	if err != nil {
+		return
 	}
+	sd.Set(v)
 
-	// Writer
-	for _, u := range users {
-		csv.Encode(u)
-	}
-	defer csv.Flush()
+	fmt.Println(buf.String())
 
-	return
-}
-
-type User struct {
-	Name     string `csv:"name"`
-	Age      int    `csv:"age"`
-	Location string `csv:"location"`
+	return nil
 }

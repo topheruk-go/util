@@ -7,10 +7,6 @@ import (
 	"github.com/jszwec/csvutil"
 )
 
-func HeaderFromString(v interface{}) (header []string, err error) {
-	return csvutil.Header(v, "csv")
-}
-
 type CSV struct {
 	r *csv.Reader
 	w *csv.Writer
@@ -21,69 +17,38 @@ type CSV struct {
 }
 
 // TODO: need to prettify
-type Options struct {
-	SetHeader bool
-	UseCRLF   bool
-	Comma     rune
-	Comment   rune
-	Schema    interface{}
+type CSVOptions struct {
+	SetHeader  bool
+	UseCRLF    bool
+	Comma      rune
+	Comment    rune
+	TimeFormat string
+	Schema     interface{}
 }
 
-func NewCSV(w io.Writer, r io.Reader, options ...*Options) (*CSV, error) {
-	var h = []string{}
-	var a = &CSV{}
+func NewCSV(w io.Writer, r io.Reader, options *CSVOptions) (c *CSV, err error) {
+	c = &CSV{}
 
-	if options == nil {
-		options = append(options, &Options{})
+	// TODO: put all this in a goroutine?
+	c.r = newReader(r, options)
+	if c.d, err = newDecoder(c.r, options); err != nil {
+		return
 	}
 
-	if options[0].SetHeader {
-		h, a.err = HeaderFromString(options[0].Schema)
-		if a.err != nil {
-			return nil, a.err
-		}
-	}
+	c.w = newWriter(w, options)
+	c.e = newEncoder(c.w)
 
-	a.e = csvutil.NewEncoder(a.newWriter(w, options[0]))
-	a.d, a.err = csvutil.NewDecoder(a.newReader(r, options[0]), h...)
-	return a, a.err
+	c.formatTime(options.TimeFormat)
+	// TODO: put all this in a goroutine?
+
+	return c, nil
 }
 
 func (a *CSV) Flush() error               { a.w.Flush(); return a.w.Error() }
 func (a *CSV) Err() error                 { return a.err }
 func (a *CSV) Encode(v interface{}) error { return a.e.Encode(v) }
 func (a *CSV) Header() []string           { return a.d.Header() }
-func (a *CSV) Scan() bool                 { return a.err == nil }
 func (a *CSV) Decode(v interface{}) error { a.err = a.d.Decode(&v); return a.Err() }
-
-func (a *CSV) newWriter(w io.Writer, options *Options) *csv.Writer {
-	a.w = csv.NewWriter(w)
-	if options != nil {
-		if options.Comma != 0 {
-			a.w.Comma = options.Comma
-		}
-		if options.UseCRLF {
-			a.w.UseCRLF = options.UseCRLF
-		}
-	}
-	return a.w
-}
-
-func (a *CSV) newReader(r io.Reader, options *Options) *csv.Reader {
-	a.r = csv.NewReader(r)
-	if options != nil {
-		if options.Comma != 0 {
-			a.r.Comma = options.Comma
-		}
-		if options.Comment != 0 {
-			a.r.Comment = options.Comment
-		}
-	}
-	return a.r
-}
-
-type Store interface {
-	Decode(v interface{}) error
-	Encode(v interface{}) error
-	Scan() bool
+func (a *CSV) Map(f func(field string, col string, v interface{}) string) {
+	a.d.Map = f
 }
