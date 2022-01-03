@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/csv"
+	"fmt"
 	"io"
 
 	"github.com/jszwec/csvutil"
@@ -12,6 +13,8 @@ func HeaderFromString(v interface{}) (header []string, err error) {
 }
 
 type App struct {
+	r *csv.Reader
+	w *csv.Writer
 	d *csvutil.Decoder
 	e *csvutil.Encoder
 
@@ -26,28 +29,28 @@ type AppOptions struct {
 	Schema    interface{}
 }
 
-func New(w io.Writer, r io.Reader, options ...*AppOptions) (a *App, err error) {
+func New(w io.Writer, r io.Reader, options ...*AppOptions) (*App, error) {
 	var h []string
+	a := &App{}
+
 	if options == nil {
 		options = append(options, &AppOptions{})
 	}
 
 	if options[0].SetHeader {
-		h, err = HeaderFromString(options[0].Schema)
-		if err != nil {
-			return nil, err
+		h, a.err = HeaderFromString(options[0].Schema)
+		if a.err != nil {
+			return nil, a.err
 		}
 	}
 
-	a = &App{
-		e: csvutil.NewEncoder(newWriter(w, options[0])),
-	}
-
-	a.d, err = csvutil.NewDecoder(newReader(r, options[0]), h...)
-	return
+	a.e = csvutil.NewEncoder(a.newWriter(w, options[0]))
+	a.d, a.err = csvutil.NewDecoder(a.newReader(r, options[0]), h...)
+	return a, a.err
 }
 
-func (a *App) Err() error                 { return a.err }
+func (a *App) Flush() error               { a.w.Flush(); return a.w.Error() }
+func (a *App) Error() error               { return a.w.Error() }
 func (a *App) Encode(v interface{}) error { return a.e.Encode(v) }
 func (a *App) Header() []string           { return a.d.Header() }
 func (a *App) Scan() bool                 { return a.err == nil }
@@ -56,25 +59,29 @@ func (a *App) Decode(v interface{}) error {
 	return a.err
 }
 
-func newWriter(w io.Writer, options *AppOptions) *csv.Writer {
-	csvw := csv.NewWriter(w)
-	if options != nil {
-		if options.Comma != 0 {
-			csvw.Comma = options.Comma
-		}
-	}
-	return csvw
+func (a *App) Print() {
+	fmt.Printf("a.w: %v\n", a.w)
 }
 
-func newReader(r io.Reader, options *AppOptions) *csv.Reader {
-	csvr := csv.NewReader(r)
+func (a *App) newWriter(w io.Writer, options *AppOptions) *csv.Writer {
+	a.w = csv.NewWriter(w)
 	if options != nil {
 		if options.Comma != 0 {
-			csvr.Comma = options.Comma
-		}
-		if options.Comment != 0 {
-			csvr.Comment = options.Comment
+			a.w.Comma = options.Comma
 		}
 	}
-	return csvr
+	return a.w
+}
+
+func (a *App) newReader(r io.Reader, options *AppOptions) *csv.Reader {
+	a.r = csv.NewReader(r)
+	if options != nil {
+		if options.Comma != 0 {
+			a.r.Comma = options.Comma
+		}
+		if options.Comment != 0 {
+			a.r.Comment = options.Comment
+		}
+	}
+	return a.r
 }

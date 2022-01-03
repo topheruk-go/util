@@ -27,11 +27,13 @@ func run() (err error) {
 	}
 	defer f.Close()
 
-	app, err := app.New(&bytes.Buffer{}, f, &app.AppOptions{})
+	var buf bytes.Buffer
+	app, err := app.New(&buf, f, &app.AppOptions{})
 	if err != nil {
 		return
 	}
 
+	// Reader
 	var users []User
 	for app.Scan() {
 		var u User
@@ -42,8 +44,18 @@ func run() (err error) {
 		users = append(users, u)
 	}
 
-	fmt.Println(users)
+	// Writer
+	for _, u := range users {
+		if err = app.Encode(u); err != nil {
+			return
+		}
+	}
 
+	if err = app.Flush(); err != nil {
+		return
+	}
+
+	fmt.Println(buf.String())
 	return
 }
 
