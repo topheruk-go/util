@@ -1,3 +1,4 @@
-name,age,_
-rahim,25,
-sara,24,
+name,age,location
+rahim,25,london
+sara,24,london
+,0,

@@ -3,10 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io"
 	"os"
 
-	"github.com/topheruk/go/learn/data/csv/app"
+	"github.com/topheruk/go/learn/data/csv/serde"
 )
 
 var filename = flag.String("f", "", "name given for .csv file")
@@ -32,39 +31,31 @@ func run() (err error) {
 	}
 	defer fw.Close()
 
-	app, err := app.New(fw, fr, &app.Options{})
-	if err != nil {
-		return
-	}
+	csv, _ := serde.New(fw, fr, &serde.Options{})
 
 	// Reader
 	var users []User
-	for app.Scan() {
+	for csv.Scan() {
 		var u User
-		if err := app.Decode(&u); err == io.EOF {
-			break
-		}
-
+		csv.Decode(&u)
 		users = append(users, u)
 	}
 
 	// Writer
-	// fmt.Println(len(users))
 	for _, u := range users {
-		if err = app.Encode(u); err != nil {
-			return
-		}
+		csv.Encode(u)
 	}
-	if err = app.Flush(); err != nil {
-		return
-	}
+	defer csv.Flush()
 
-	// fmt.Println(buf.String())
 	return
+}
+
+func Read(users []User) error {
+	return nil
 }
 
 type User struct {
 	Name     string `csv:"name"`
 	Age      int    `csv:"age"`
-	Location string `csv:"-"`
+	Location string `csv:"location"`
 }

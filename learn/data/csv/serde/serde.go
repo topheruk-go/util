@@ -1,8 +1,7 @@
-package app
+package serde
 
 import (
 	"encoding/csv"
-	"fmt"
 	"io"
 
 	"github.com/jszwec/csvutil"
@@ -12,7 +11,7 @@ func HeaderFromString(v interface{}) (header []string, err error) {
 	return csvutil.Header(v, "csv")
 }
 
-type App struct {
+type Serde struct {
 	r *csv.Reader
 	w *csv.Writer
 	d *csvutil.Decoder
@@ -30,9 +29,9 @@ type Options struct {
 	Schema    interface{}
 }
 
-func New(w io.Writer, r io.Reader, options ...*Options) (*App, error) {
+func New(w io.Writer, r io.Reader, options ...*Options) (*Serde, error) {
 	var h = []string{}
-	var a = &App{}
+	var a = &Serde{}
 
 	if options == nil {
 		options = append(options, &Options{})
@@ -50,18 +49,14 @@ func New(w io.Writer, r io.Reader, options ...*Options) (*App, error) {
 	return a, a.err
 }
 
-func (a *App) Flush() error               { a.w.Flush(); return a.w.Error() }
-func (a *App) Err() error                 { return a.err }
-func (a *App) Encode(v interface{}) error { return a.e.Encode(v) }
-func (a *App) Header() []string           { return a.d.Header() }
-func (a *App) Scan() bool                 { return a.err == nil }
-func (a *App) Decode(v interface{}) error { a.err = a.d.Decode(&v); return a.Err() }
+func (a *Serde) Flush() error               { a.w.Flush(); return a.w.Error() }
+func (a *Serde) Err() error                 { return a.err }
+func (a *Serde) Encode(v interface{}) error { return a.e.Encode(v) }
+func (a *Serde) Header() []string           { return a.d.Header() }
+func (a *Serde) Scan() bool                 { return a.err == nil }
+func (a *Serde) Decode(v interface{}) error { a.err = a.d.Decode(&v); return a.Err() }
 
-func (a *App) Print() {
-	fmt.Printf("a.w: %v\n", a.w)
-}
-
-func (a *App) newWriter(w io.Writer, options *Options) *csv.Writer {
+func (a *Serde) newWriter(w io.Writer, options *Options) *csv.Writer {
 	a.w = csv.NewWriter(w)
 	if options != nil {
 		if options.Comma != 0 {
@@ -74,7 +69,7 @@ func (a *App) newWriter(w io.Writer, options *Options) *csv.Writer {
 	return a.w
 }
 
-func (a *App) newReader(r io.Reader, options *Options) *csv.Reader {
+func (a *Serde) newReader(r io.Reader, options *Options) *csv.Reader {
 	a.r = csv.NewReader(r)
 	if options != nil {
 		if options.Comma != 0 {
@@ -85,4 +80,10 @@ func (a *App) newReader(r io.Reader, options *Options) *csv.Reader {
 		}
 	}
 	return a.r
+}
+
+type Store interface {
+	Decode(v interface{}) error
+	Encode(v interface{}) error
+	Scan() bool
 }
