@@ -22,6 +22,7 @@ require (
 	github.com/go-playground/validator/v10 v10.9.0
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
+	github.com/jszwec/csvutil v1.6.0
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0
