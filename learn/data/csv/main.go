@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"io"
@@ -21,15 +20,19 @@ func main() {
 }
 
 func run() (err error) {
-	f, err := os.Open(fmt.Sprintf("learn/data/csv/data/%s.csv", *filename))
+	fr, err := os.Open(fmt.Sprintf("learn/data/csv/data/%s.csv", *filename))
 	if err != nil {
 		return
 	}
-	defer f.Close()
+	defer fr.Close()
 
-	var buf bytes.Buffer
+	fw, err := os.Create("learn/data/csv/data/output.csv")
+	if err != nil {
+		return
+	}
+	defer fw.Close()
 
-	app, err := app.New(&buf, f, &app.Options{})
+	app, err := app.New(fw, fr, &app.Options{})
 	if err != nil {
 		return
 	}
@@ -46,6 +49,7 @@ func run() (err error) {
 	}
 
 	// Writer
+	// fmt.Println(len(users))
 	for _, u := range users {
 		if err = app.Encode(u); err != nil {
 			return
@@ -55,12 +59,12 @@ func run() (err error) {
 		return
 	}
 
-	fmt.Println(buf.String())
+	// fmt.Println(buf.String())
 	return
 }
 
 type User struct {
 	Name     string `csv:"name"`
 	Age      int    `csv:"age"`
-	Location string `csv:"location"`
+	Location string `csv:"-"`
 }

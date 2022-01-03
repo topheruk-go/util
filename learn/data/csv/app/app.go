@@ -31,8 +31,8 @@ type Options struct {
 }
 
 func New(w io.Writer, r io.Reader, options ...*Options) (*App, error) {
-	var h []string
-	a := &App{}
+	var h = []string{}
+	var a = &App{}
 
 	if options == nil {
 		options = append(options, &Options{})
@@ -51,14 +51,11 @@ func New(w io.Writer, r io.Reader, options ...*Options) (*App, error) {
 }
 
 func (a *App) Flush() error               { a.w.Flush(); return a.w.Error() }
-func (a *App) Error() error               { return a.w.Error() }
+func (a *App) Err() error                 { return a.err }
 func (a *App) Encode(v interface{}) error { return a.e.Encode(v) }
 func (a *App) Header() []string           { return a.d.Header() }
 func (a *App) Scan() bool                 { return a.err == nil }
-func (a *App) Decode(v interface{}) error {
-	a.err = a.d.Decode(&v)
-	return a.err
-}
+func (a *App) Decode(v interface{}) error { a.err = a.d.Decode(&v); return a.Err() }
 
 func (a *App) Print() {
 	fmt.Printf("a.w: %v\n", a.w)
@@ -69,6 +66,9 @@ func (a *App) newWriter(w io.Writer, options *Options) *csv.Writer {
 	if options != nil {
 		if options.Comma != 0 {
 			a.w.Comma = options.Comma
+		}
+		if options.UseCRLF {
+			a.w.UseCRLF = options.UseCRLF
 		}
 	}
 	return a.w
