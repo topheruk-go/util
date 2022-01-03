@@ -4,6 +4,11 @@ type Serde interface {
 	Decode(v interface{}) error
 	Encode(v interface{}) error
 	Flush() error
+
+	// Map(f func(field string, col string, v interface{}) string)
+}
+
+type ModelSerde interface {
 }
 
 type Decoder interface {

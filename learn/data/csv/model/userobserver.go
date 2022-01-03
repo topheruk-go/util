@@ -7,12 +7,9 @@ import (
 )
 
 type UserObserver struct {
-	// [ required ] The User identifier from users.csv for the observing user.
-	ID string `csv:"observer_id"`
-	// [ required ] The User identifier from users.csv for the student user.
+	ID        string `csv:"observer_id"`
 	StudentID string `csv:"student_id"`
-	// FIXME: [ required ] active, deleted
-	Status string `csv:"status"`
+	Status    Status `csv:"status"`
 }
 
 type UserObserverSerde struct {

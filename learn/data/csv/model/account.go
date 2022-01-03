@@ -7,15 +7,11 @@ import (
 )
 
 type Account struct {
-	// [ required ] A unique identifier used to reference accounts in the enrollments data. This identifier must not change for the account, and must be globally unique. In the user interface, this is called the SIS ID.
-	ID string `csv:"account_id"`
-	// [ required, sticky ] The account identifier of the parent account. If this is blank the parent account will be the root account. Note that even if all values are blank, the column must be included to differentiate the file from a group import.
+	ID       string `csv:"account_id"`
 	ParentID string `csv:"parent_account_id"`
-	// [ required, sticky ] The name of the account
-	Name string `csv:"name"`
-	// [ required ] active, deleted
-	Status string `csv:"status"`
-	// Sets the integration_id of the account
+	Name     string `csv:"name"`
+	// FIXME: enum:active,deleted
+	Status        Status `csv:"status"`
 	IntegrationID string `csv:"integration_id"`
 }
 
@@ -24,6 +20,11 @@ type AccountSerde struct {
 }
 
 func (sd AccountSerde) Get() (v []Account, err error) {
+	// sd.Map(func(field, col string, v interface{}) string {
+	// 	return field
+	// })
+	// var x int
+
 EOF:
 	for {
 		var u Account

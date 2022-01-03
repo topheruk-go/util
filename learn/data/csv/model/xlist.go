@@ -7,12 +7,9 @@ import (
 )
 
 type XList struct {
-	// [ required ] The course identifier from courses.csv
-	CourseID string `csv:"xlist_course_id"`
-	// [ required ] The section identifier from sections.csv
+	CourseID  string `csv:"xlist_course_id"`
 	SectionID string `csv:"section_id"`
-	// FIXME: [ required ] active, deleted
-	Status string `csv:"status"`
+	Status    Status `csv:"status"`
 }
 
 type XListSerde struct {

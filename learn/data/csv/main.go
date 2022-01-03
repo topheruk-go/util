@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/topheruk/go/learn/data/csv/model"
 	"github.com/topheruk/go/learn/data/csv/serde"
@@ -17,18 +18,17 @@ func main() {
 }
 
 type app struct {
-	csv map[string]*serde.CSV
+	csv map[string]*serde.Serde
 }
 
 func run() (err error) {
-	fr, err := os.Open("learn/data/csv/data/accounts.csv")
+	fr, err := readFile("learn/data/csv/data/accounts.csv")
 	if err != nil {
 		return
 	}
 	defer fr.Close()
 
 	var buf bytes.Buffer
-	// TODO: time should be in format ISO8601:YYYY-MM-DDTHH:MM:SSZ
 	// FIXME: all my csvs have a value for canvas_*_id which does not need to be there
 	csv, err := serde.NewCSV(&buf, fr, &serde.CSVOptions{TimeFormat: "0001-01-01T00:00:00Z"})
 	if err != nil {
@@ -45,5 +45,46 @@ func run() (err error) {
 
 	fmt.Println(buf.String())
 
+	// read directory
+	err = readDir("./learn/data/csv/data")
+	if err != nil {
+		return
+	}
+
+	return nil
+}
+
+func readFile(name string) (*os.File, error) {
+	return os.Open(name)
+}
+
+func readDir(name string) (err error) {
+	d, err := os.Open(name)
+	if err != nil {
+		return
+	}
+
+	defer d.Close()
+
+	list, err := d.Readdir(-1)
+	if err != nil {
+		return
+	}
+
+	for _, f := range list {
+		switch {
+		case filepath.Ext(f.Name()) == ".csv":
+			if err := newSerde(name + "/" + f.Name()); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return
+}
+
+func newSerde(name string) error {
+	fmt.Printf("%s\n", name)
 	return nil
 }

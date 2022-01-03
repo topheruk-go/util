@@ -8,20 +8,13 @@ import (
 )
 
 type Section struct {
-	// [Requried] A unique identifier used to reference sections in the enrollments data. This identifier must not change for the section, and must be globally unique. In the user interface, this is called the SIS ID.
-	ID string `csv:"id"`
-	// [Requried, Sticky] The course identfier from course.csv
-	CourseID string `csv:"course_id"`
-	// [Requried, Sticky] The name of the section
-	Name string `csv:"name"`
-	// FIXME: [Requried] active, deleted
-	Status string `csv:"status"`
-	// Sets the integration_id of the section
-	IntegrationID string `csv:"integration_id"`
-	// [Sticky] The section start date The format should be in ISO 8601: YYYY-MM-DDTHH:MM:SSZ
-	StartDate *time.Time `csv:"start_date"`
-	// [Sticky] The section end date The format should be in ISO 8601: YYYY-MM-DDTHH:MM:SSZ
-	EndDate *time.Time `csv:"end_date"`
+	ID            string     `csv:"id"`
+	CourseID      string     `csv:"course_id"`
+	Name          string     `csv:"name"`
+	Status        Status     `csv:"status"`
+	IntegrationID string     `csv:"integration_id"`
+	StartDate     *time.Time `csv:"start_date"`
+	EndDate       *time.Time `csv:"end_date"`
 }
 
 type SectionSerde struct {

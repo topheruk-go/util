@@ -7,17 +7,12 @@ import (
 )
 
 type Admin struct {
-	// [ required ] The User identifier from users.csv
-	UserID string
-	// [ required ] The account identifier from accounts.csv. Uses the root_account if left blank. The collumn is required even when importing for the root_account and the value is blank.
+	UserID    string
 	AccountID string
-	// [ required (or "role") ] Uses a role id, either built-in or defined by the account.
-	RoleID string
-	// [ required (or "role_id") ] AccountAdmin, or a custom role defined by the account. When using a custom role, the name is case sensitive.
-	Role string
-	// FIXME: [ requried ] active, deleted
-	Status string
-	// The domain of the account to search for the user.
+	RoleID    string
+	Role      string
+	// FIXME: enum:active,deleted
+	Status      string
 	RootAccount string
 }
 
