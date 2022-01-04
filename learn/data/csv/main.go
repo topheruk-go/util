@@ -22,7 +22,7 @@ type app struct {
 }
 
 func run() (err error) {
-	fr, err := readFile("learn/data/csv/data/accounts.csv")
+	fr, err := readFile("learn/data/csv/data/terms.csv")
 	if err != nil {
 		return
 	}
@@ -30,17 +30,22 @@ func run() (err error) {
 
 	var buf bytes.Buffer
 	// FIXME: all my csvs have a value for canvas_*_id which does not need to be there
-	csv, err := serde.NewCSV(&buf, fr, &serde.CSVOptions{TimeFormat: "0001-01-01T00:00:00Z"})
+	csv, err := serde.NewCSV(&buf, fr, &serde.CSVOptions{})
 	if err != nil {
 		return
 	}
 
-	sd := model.AccountSerde{Serde: csv}
+	sd := model.TermSerde{Serde: csv}
+
+	// sd.Map(state)
 
 	v, err := sd.Get()
 	if err != nil {
 		return
 	}
+
+	// u
+
 	sd.Set(v)
 
 	fmt.Println(buf.String())
@@ -52,6 +57,15 @@ func run() (err error) {
 	}
 
 	return nil
+}
+
+func doSomething(sd serde.ModelSerde, v []model.Term) {
+	for _, t := range v {
+		t.Status = model.Designer
+	}
+
+	sd.Set(v)
+	// panic("unimplemented")
 }
 
 func readFile(name string) (*os.File, error) {
