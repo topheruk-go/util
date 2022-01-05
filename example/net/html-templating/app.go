@@ -1,22 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	t "github.com/topheruk/go/src/template"
 )
-
-func main() {
-	if err := run(); err != nil {
-		panic(err)
-	}
-}
-
-func run() (err error) {
-	fmt.Println("Listening to http://localhost:8000/")
-	return http.ListenAndServe(":8000", newApp())
-}
 
 type app struct {
 	r *http.ServeMux
@@ -28,7 +16,6 @@ func newApp() (a *app) {
 	a = &app{
 		r: http.NewServeMux(),
 	}
-	// FIXME: could be in a go routine? does it need to be
 	a.routes()
 	return
 }

@@ -1,64 +1,12 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"io"
-	"net/http"
 	"net/url"
-	"os"
 	"strings"
-	"sync"
 
 	"golang.org/x/net/html"
 )
-
-// test := go run ./example/net/webCrawler/ https://schier.co https://insomnia.rest
-
-func main() {
-	if err := run(); err != nil {
-		panic(err)
-	}
-}
-
-func run() (err error) {
-	if len(os.Args) == 1 {
-		return errors.New("please pass in a url(s) as an argument")
-	}
-
-	var wg sync.WaitGroup
-	var unique = map[string]*url.URL{}
-
-	for _, u := range os.Args[1:] {
-		wg.Add(1)
-		go crawl(u, unique, &wg)
-	}
-	wg.Wait()
-
-	for url := range unique {
-		fmt.Println(url)
-	}
-
-	return
-}
-
-func crawl(u string, unique map[string]*url.URL, wg *sync.WaitGroup) {
-	defer wg.Done()
-
-	r, err := http.Get(u)
-	if err != nil {
-		return
-	}
-	defer r.Body.Close()
-	l := lex(r.Body, 10)
-
-	// FIXME: this needs to be in a go routine
-	for item := range l.items {
-		if _, ok := unique[item.url.String()]; !ok {
-			unique[item.url.String()] = item.url
-		}
-	}
-}
 
 type lexer struct {
 	*html.Tokenizer

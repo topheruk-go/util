@@ -18,14 +18,21 @@ func main() {
 }
 
 func run() (err error) {
-	f, err := os.Open("example/wordCount/hamlet_gut.txt")
+	f, err := os.Open("example/io/word-count/docs/hamlet_gut.txt")
 	if err != nil {
 		return
 	}
 	defer f.Close()
 
 	a := newApp(f)
-	a.print()
+
+	for word, count := range a.found {
+		if count > 1 {
+			fmt.Printf("%d %s\n", count, word)
+		}
+	}
+
+	// fmt.Println(len(a.found))
 	return
 }
 
@@ -41,7 +48,10 @@ func newApp(f io.ReadCloser) (a *app) {
 		bufio.NewScanner(f),
 		make(map[string]int),
 	}
-	go a.run()
+	// TODO: convert to go routine
+	// or is the go routine in the run()
+	// method all that is required
+	a.run()
 	return a
 }
 
@@ -63,14 +73,6 @@ func (a *app) add(word string, n int) {
 	}
 
 	a.found[word] = count + n
-}
-
-func (a *app) print() {
-	for word, count := range a.found {
-		if count > 1 {
-			fmt.Printf("%d %s\n", count, word)
-		}
-	}
 }
 
 func (a *app) tallyWords() (err error) {
