@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/topheruk/go/example/net/mongoDb/app"
-	"github.com/topheruk/go/example/net/mongoDb/database"
+	"github.com/topheruk/go/learn/net/mongodb/app"
+	"github.com/topheruk/go/learn/net/mongodb/database"
 )
 
 type TestCase struct {
