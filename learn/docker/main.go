@@ -10,6 +10,8 @@ import (
 	db "github.com/topheruk/go/learn/docker/mongodb"
 )
 
+// make docker.up f=<dir_pathname>docker-compose.yaml e=<dir_pathname>.env
+
 func init() {
 	env := flag.String("env", "", "environment varaible file")
 	flag.Parse()
