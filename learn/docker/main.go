@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/topheruk/go/learn/docker/database/mongodb"
+	db "github.com/topheruk/go/learn/docker/mongodb"
 )
 
 func init() {
@@ -26,5 +26,5 @@ func main() {
 }
 
 func run() (err error) {
-	return mongodb.Setup()
+	return db.Setup()
 }
