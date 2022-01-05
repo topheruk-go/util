@@ -3,7 +3,7 @@ package app
 import (
 	"net/http"
 
-	db "github.com/topheruk/go/example/net/mongoDb/database"
+	db "github.com/topheruk/go/learn/net/mongodb/database"
 )
 
 func (a *app) routes() {
