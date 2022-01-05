@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/topheruk/go/learn/data/csv/model"
-	"github.com/topheruk/go/learn/data/csv/serde"
+	"github.com/topheruk/go/learn/fs/csv/model"
+	"github.com/topheruk/go/learn/fs/csv/serde"
 )
 
 func main() {

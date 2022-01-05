@@ -8,8 +8,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/topheruk/go/example/net/mongodb/app"
-	db "github.com/topheruk/go/example/net/mongodb/database"
+	"github.com/topheruk/go/learn/net/mongodb/app"
+	db "github.com/topheruk/go/learn/net/mongodb/database"
 )
 
 var user = flag.String("user", "", "client username")

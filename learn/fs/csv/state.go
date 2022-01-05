@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/topheruk/go/learn/data/csv/model"
+	"github.com/topheruk/go/learn/fs/csv/model"
 )
 
 // TODO: can I turn this into a stateFn?
