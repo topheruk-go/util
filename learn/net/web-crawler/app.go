@@ -7,7 +7,8 @@ import (
 
 type app struct {
 	sync.WaitGroup
-	urls  []string
+	urls []string
+	// change this to a channel
 	items map[string]item
 }
 
@@ -30,6 +31,7 @@ func (a *app) crawl(u string) {
 	l := lex(r.Body, 10)
 
 	// FIXME: this needs to be in a go routine
+
 	for item := range l.items {
 		if _, ok := a.items[item.url.String()]; !ok {
 			a.items[item.url.String()] = item

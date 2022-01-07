@@ -26,7 +26,7 @@ func run() (err error) {
 
 	a.run()
 
-	for i := range a.items {
+	for _, i := range a.items {
 		fmt.Printf("%v\n", i)
 	}
 
