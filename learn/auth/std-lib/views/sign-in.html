@@ -12,18 +12,19 @@
     <form action="/sign-in" method="get">
         <div class="container">
             <h1>Sign In</h1>
+            <!-- TODO: if data then render -->
             <p>{{.}}</p>
             <p>Please fill in this form to sign in</p>
             <hr>
 
             <label><b>Email</b></label>
-            <input type="text" placeholder="Enter Email" name="email" required>
+            <input type="email" placeholder="Enter Email" name="email" required pattern=".+@gmail.com" size="30">
 
             <label><b>Password</b></label>
             <input type="password" placeholder="Enter Password" name="password" required>
 
             <div class="clearfix">
-                <button type="submit">Sign Up</button>
+                <button type="submit">Sign In</button>
             </div>
         </div>
     </form>
