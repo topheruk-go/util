@@ -22,6 +22,7 @@ require (
 	github.com/oliveagle/jsonpath v0.0.0-20180606110733-2e52cf6e6852 // indirect
 	github.com/opentracing/opentracing-go v1.0.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/qri-io/jsonpointer v0.1.1 // indirect
 	github.com/sirupsen/logrus v1.3.0 // indirect
 	github.com/spf13/cast v1.3.0 // indirect
 	github.com/src-d/go-oniguruma v1.0.0 // indirect
@@ -44,6 +45,7 @@ require (
 	github.com/jszwec/csvutil v1.6.0
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/qri-io/jsonschema v0.2.1
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0
 	github.com/src-d/go-mysql-server v0.6.0
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect

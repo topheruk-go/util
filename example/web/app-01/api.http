@@ -1,0 +1,8 @@
+curl -X POST http://localhost:8000/user 
+-d '{"email":"hello@qa.com", "password":"123456"}'
+###
+curl -X POST http://localhost:8000/user 
+-d '{"email":"david@qa.com"}'
+###
+curl -X POST http://localhost:8000/user 
+-d '{"emal":"david@qa.com"}'

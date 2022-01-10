@@ -17,7 +17,7 @@ func Render(path ...string) (f func(rw http.ResponseWriter, r *http.Request, dat
 
 	init.Do(func() { tpl, err = template.ParseFiles(path...) })
 
-	return func(rw http.ResponseWriter, r *http.Request, data interface{}) {
+	f = func(rw http.ResponseWriter, r *http.Request, data interface{}) {
 		buf = &bytes.Buffer{}
 		err = tpl.Execute(buf, data)
 		if err != nil {
@@ -26,5 +26,7 @@ func Render(path ...string) (f func(rw http.ResponseWriter, r *http.Request, dat
 		}
 
 		buf.WriteTo(rw)
-	}, err
+	}
+
+	return f, err
 }
