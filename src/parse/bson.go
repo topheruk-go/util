@@ -35,14 +35,18 @@ func BsonCmd(path string) (v *primitive.D, err error) {
 		return
 	}
 
-	return ToDoc(bcmd)
-}
-
-func ToDoc(v interface{}) (doc *bson.D, err error) {
-	data, err := bson.Marshal(v)
-	if err != nil {
-		return
-	}
-	err = bson.Unmarshal(data, &doc)
+	*v, err = ToBSON(bcmd)
 	return
 }
+
+func ToBSON(v interface{}) (primitive.D, error) {
+	b, err := bson.Marshal(v)
+	if err != nil {
+		return nil, err
+	}
+
+	var d = primitive.D{}
+	return d, bson.Unmarshal(b, &d)
+}
+
+func FromBSON(v interface{}) {}

@@ -3,11 +3,19 @@ package app01
 import (
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/topheruk/go/example/web/app-01/model"
 	e "github.com/topheruk/go/src/encoding"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+func (a *App) routes() {
+	a.m.Get("/ping", a.handlePing())
+	a.m.Get("/echo", a.handleEcho("this is an example of an echo handler"))
+
+	a.m.Post("/user", a.handleCreateUser("example/web/json/user.schema.json"))
+	// a.m.Put("/user/{id}", a.handleUpdateUser("example/web/json/user.schema.json"))
+	a.m.Get("/user/{id}", a.handleSearchUser())
+	// a.m.Delete("/user/{id}", a.handleDeleteUser())
+}
 
 func (a *App) handlePing() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
@@ -24,68 +32,43 @@ func (a *App) handleEcho(message string) http.HandlerFunc {
 func (a *App) handleCreateUser(schema string) http.HandlerFunc {
 	decode, err := e.Validator(schema)
 	return func(rw http.ResponseWriter, r *http.Request) {
-		var dto model.DtoUser
-		if err = decode(rw, r, &dto); err != nil {
+		var dto DtoUser
+		err = decode(rw, r, &dto)
+		if err != nil {
 			e.Respond(rw, r, err, http.StatusBadRequest)
 			return
 		}
-		if err = a.db.Insert(r.Context(), &dto); err != nil {
+
+		err = a.db.InsertOne(r.Context(), &dto)
+		if err != nil {
 			e.Respond(rw, r, err, http.StatusInternalServerError)
 			return
 		}
+
 		e.Respond(rw, r, dto, http.StatusOK)
 	}
 }
 
 func (a *App) handleSearchUser() http.HandlerFunc {
-	return func(rw http.ResponseWriter, r *http.Request) {
-		id, err := primitive.ObjectIDFromHex(chi.URLParamFromCtx(r.Context(), "id"))
-		if err != nil {
-			e.Respond(rw, r, err, http.StatusBadRequest)
-			return
-		}
-		user, err := a.db.Search(r.Context(), id)
-		if err != nil {
-			e.Respond(rw, r, err, http.StatusInternalServerError)
-			return
-		}
-		e.Respond(rw, r, user, http.StatusOK)
-	}
-}
+	var (
+		oid primitive.ObjectID
+		err error
+	)
 
-func (a *App) handleDeleteUser() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-		id, err := primitive.ObjectIDFromHex(chi.URLParamFromCtx(r.Context(), "id"))
+		oid, err = a.OID(r)
 		if err != nil {
 			e.Respond(rw, r, err, http.StatusBadRequest)
 			return
 		}
-		if err = a.db.Delete(r.Context(), id); err != nil {
-			e.Respond(rw, r, err, http.StatusInternalServerError)
-			return
-		}
-		e.Respond(rw, r, id, http.StatusOK)
-	}
-}
 
-func (a *App) handleUpdateUser(schema string) http.HandlerFunc {
-	decode, err := e.Validator(schema)
-	return func(rw http.ResponseWriter, r *http.Request) {
-		var dto model.DtoUser
-		if err = decode(rw, r, &dto); err != nil {
-			e.Respond(rw, r, err, http.StatusBadRequest)
-			return
-		}
-		id, err := primitive.ObjectIDFromHex(chi.URLParamFromCtx(r.Context(), "id"))
-		if err != nil {
-			e.Respond(rw, r, err, http.StatusBadRequest)
-			return
-		}
-		user, err := a.db.Update(r.Context(), id, &dto)
+		var user User
+		err = a.db.FindOne(r.Context(), a.filterByID(oid), &user)
 		if err != nil {
 			e.Respond(rw, r, err, http.StatusInternalServerError)
 			return
 		}
+
 		e.Respond(rw, r, user, http.StatusOK)
 	}
 }

@@ -5,14 +5,14 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/topheruk/go/example/web/app-01/model"
 	"github.com/topheruk/go/src/encoding"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type App struct {
 	m  *chi.Mux
-	db UserService
+	db Database
 }
 
 func (a *App) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
@@ -36,19 +36,22 @@ func New() *App {
 	return a
 }
 
-func (a *App) routes() {
-	a.m.Get("/ping", a.handlePing())
-	a.m.Get("/echo", a.handleEcho("this is an example of an echo handler"))
-
-	a.m.Post("/user", a.handleCreateUser("example/web/json/user.schema.json"))
-	a.m.Put("/user/{id}", a.handleUpdateUser("example/web/json/user.schema.json"))
-	a.m.Get("/user/{id}", a.handleSearchUser())
-	a.m.Delete("/user/{id}", a.handleDeleteUser())
+func (a *App) param(r *http.Request, param string) string {
+	return chi.URLParamFromCtx(r.Context(), param)
 }
 
-type UserService interface {
-	Search(context.Context, primitive.ObjectID) (*model.User, error)
-	Insert(context.Context, *model.DtoUser) error
-	Delete(context.Context, primitive.ObjectID) error
-	Update(context.Context, primitive.ObjectID, *model.DtoUser) (*model.User, error)
+func (a *App) OID(r *http.Request) (primitive.ObjectID, error) {
+	return primitive.ObjectIDFromHex(a.param(r, "id"))
+}
+
+func (a *App) filterByID(id primitive.ObjectID) bson.D { return bson.D{{Key: "_id", Value: id}} }
+
+type Datum interface {
+	ToBSON() (primitive.D, error)
+	String() string
+}
+
+type Database interface {
+	InsertOne(ctx context.Context, d Datum) error
+	FindOne(ctx context.Context, f bson.D, d Datum) error
 }
