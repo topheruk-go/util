@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/qri-io/jsonschema"
 )
@@ -30,39 +31,35 @@ func main() {
 	log.Printf("success %v\n", p)
 }
 
-func decode(bodyUrl string, v interface{}) (err error) {
-	bodyBytes, err := ioutil.ReadFile(bodyUrl)
+func validation(schemaUrl, bodyUrl string, v interface{}) (err error) {
+	sch, err := loadSchemaFromString(schemaUrl)
 	if err != nil {
 		return
+	}
+
+	var bodyBytes = []byte(`{
+		"firstName" : "George",
+		"lastName" : "Michael"
+		}`)
+
+	errs, err := sch.ValidateBytes(context.TODO(), bodyBytes)
+	if err != nil {
+		return err
+	}
+
+	if len(errs) > 0 {
+		return fmt.Errorf("%v", errs)
 	}
 
 	return json.Unmarshal(bodyBytes, v)
 }
 
-func validation(schemaUrl, bodyUrl string, v interface{}) (err error) {
-	var schema = &jsonschema.Schema{}
-
-	schemeBytes, err := ioutil.ReadFile(schemaUrl)
+func loadSchemaFromString(url string) (*jsonschema.Schema, error) {
+	b, err := os.ReadFile(url)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	bodyBytes, err := ioutil.ReadFile(bodyUrl)
-	if err != nil {
-		return
-	}
-
-	if err = json.Unmarshal(schemeBytes, schema); err != nil {
-		return
-	}
-
-	if _, err = schema.ValidateBytes(context.TODO(), bodyBytes); err != nil {
-		return
-	}
-
-	if err = json.Unmarshal(bodyBytes, v); err != nil {
-		return
-	}
-
-	return
+	v := &jsonschema.Schema{}
+	return v, json.Unmarshal(b, v)
 }
