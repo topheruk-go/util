@@ -11,13 +11,13 @@ import (
 // FindUser(ctx context.Context, f bson.D, d Datum) error
 // FindUserMany(ctx context.Context, f bson.D) ([]User, error)
 // FindUserAll(ctx context.Context) ([]User, error)
-// InsertUser
+// InsertUser(ctx context.Context, d Datum) (err error)
 // InsertUserMany
 // UpsertUser
 // UpsertUserMany
-// DeleteUser
-// DeleteUserMany
-// DeleteUserAll
+// DeleteUser(ctx context.Context, f bson.D) error
+// DeleteUserMany(ctx context.Context, f bson.D) error
+// DeleteUserAll(ctx context.Context) error
 // UpdateUser
 // UpdateUserMany
 
@@ -52,6 +52,14 @@ func (s *Service) FindUserMany(ctx context.Context, f bson.D) ([]User, error) {
 func (s *Service) InsertUser(ctx context.Context, d Datum) (err error) {
 	_, err = s.CompanyUsers().InsertOne(ctx, d)
 	return
+}
+
+func (s *Service) InsertUserMany(ctx context.Context, us []User) error {
+
+	var v = bson.A{us}
+
+	s.CompanyUsers().InsertMany(ctx, v)
+	return nil
 }
 
 func (s *Service) UpsertUser(ctx context.Context, f bson.D, d Datum) error {
