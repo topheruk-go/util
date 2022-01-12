@@ -11,8 +11,8 @@ import (
 )
 
 type App struct {
-	m  *chi.Mux
-	db Database
+	m *chi.Mux
+	c Client
 }
 
 func (a *App) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
@@ -27,10 +27,10 @@ func (a *App) decode(rw http.ResponseWriter, r *http.Request, data interface{}) 
 	return encoding.Decode(rw, r, data)
 }
 
-func New() *App {
+func NewApp(c Client) *App {
 	a := &App{
 		m: chi.NewMux(),
-		// us: TODO:,
+		c: c,
 	}
 	a.routes()
 	return a
@@ -51,7 +51,7 @@ type Datum interface {
 	String() string
 }
 
-type Database interface {
+type Client interface {
 	InsertOne(ctx context.Context, d Datum) error
 	FindOne(ctx context.Context, f bson.D, d Datum) error
 }

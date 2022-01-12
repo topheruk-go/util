@@ -12,9 +12,7 @@ func (a *App) routes() {
 	a.m.Get("/echo", a.handleEcho("this is an example of an echo handler"))
 
 	a.m.Post("/user", a.handleCreateUser("example/web/json/user.schema.json"))
-	// a.m.Put("/user/{id}", a.handleUpdateUser("example/web/json/user.schema.json"))
 	a.m.Get("/user/{id}", a.handleSearchUser())
-	// a.m.Delete("/user/{id}", a.handleDeleteUser())
 }
 
 func (a *App) handlePing() http.HandlerFunc {
@@ -39,7 +37,7 @@ func (a *App) handleCreateUser(schema string) http.HandlerFunc {
 			return
 		}
 
-		err = a.db.InsertOne(r.Context(), &dto)
+		err = a.c.InsertOne(r.Context(), &dto)
 		if err != nil {
 			e.Respond(rw, r, err, http.StatusInternalServerError)
 			return
@@ -63,7 +61,7 @@ func (a *App) handleSearchUser() http.HandlerFunc {
 		}
 
 		var user User
-		err = a.db.FindOne(r.Context(), a.filterByID(oid), &user)
+		err = a.c.FindOne(r.Context(), a.filterByID(oid), &user)
 		if err != nil {
 			e.Respond(rw, r, err, http.StatusInternalServerError)
 			return
