@@ -31,13 +31,9 @@ func run() (err error) {
 		}
 	}
 
-	records, err := app.All()
+	_, err = app.All()
 	if err != nil {
 		return
-	}
-
-	for i, record := range records {
-
 	}
 
 	return
