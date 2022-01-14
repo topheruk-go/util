@@ -46,7 +46,7 @@ func (db *Database) SetupValidation(ctx context.Context, schemaUrls ...string) e
 }
 
 func (db *Database) InsertOne(ctx context.Context, collName string, v interface{}) (primitive.ObjectID, error) {
-	doc, err := parse.ToDoc(v) //may not be needed
+	doc, err := parse.ToBSON(v) //may not be needed
 	if err != nil {
 		return primitive.NilObjectID, err
 	}
