@@ -11,19 +11,19 @@ import (
 	"github.com/topheruk/go/learn/fs/sql/example/app01/service"
 )
 
-func main() {
-	if err := run(); err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
-		os.Exit(1)
-	}
-}
-
 var (
 	datasourceName = "./learn/fs/sql/example/app01/sql/.sqlite3"
 	sqlTables      = map[string]string{
 		"user": `"id" BLOB PRIMARY KEY,	"email"	TEXT NOT NULL UNIQUE, "password" BLOB NOT NULL,	"created_at" DATETIME NOT NULL`,
 	}
 )
+
+func main() {
+	if err := run(); err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(1)
+	}
+}
 
 func run() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
