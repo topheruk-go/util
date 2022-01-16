@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 )
@@ -15,12 +16,26 @@ func main() {
 }
 
 var (
-	datasourceName = "./learn/fs/sql/example/app01/.sqlite3"
+	datasourceName = "./learn/fs/sql/example/app01/web.sqlite3"
+	sqlTables      = map[string]string{
+		"user": `"id" BLOB PRIMARY KEY,	"email"	TEXT NOT NULL UNIQUE, "password" BLOB NOT NULL,	"created_at" DATETIME NOT NULL`,
+	}
 )
 
 func run() error {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	NewService(ctx, datasourceName)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-	return nil
+	db := newService(ctx, datasourceName)
+	go db.Migrate(ctx, sqlTables)
+
+	app := newApp(db)
+
+	srv := &http.Server{
+		Addr:    ":8000",
+		Handler: app,
+	}
+
+	fmt.Println("listening... http://localhost:8000/ping")
+	return srv.ListenAndServe()
 }
