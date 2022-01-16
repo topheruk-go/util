@@ -7,8 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/topheruk/go/learn/fs/sql/example/app01/app"
-	"github.com/topheruk/go/learn/fs/sql/example/app01/service"
+	"github.com/topheruk/go/src/database/sql"
 )
 
 func main() {
@@ -19,7 +18,7 @@ func main() {
 }
 
 var (
-	datasourceName = "./learn/fs/sql/example/app01/sql/.sqlite3"
+	datasourceName = "./learn/fs/sql/example/app01/web.sqlite3"
 	sqlTables      = map[string]string{
 		"user": `"id" BLOB PRIMARY KEY,	"email"	TEXT NOT NULL UNIQUE, "password" BLOB NOT NULL,	"created_at" DATETIME NOT NULL`,
 	}
@@ -30,15 +29,18 @@ func run() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	db := service.NewDB(ctx, datasourceName)
+	db := newService(ctx, datasourceName)
 	go db.Migrate(ctx, sqlTables)
 
-	app := app.New(db)
+	app := newApp(db)
 
 	srv := &http.Server{
 		Addr:    ":8000",
 		Handler: app,
 	}
+
+	// topheruk.sql.DB
+	s := sql.New(ctx, datasourceName)
 
 	fmt.Println("listening... http://localhost:8000/ping")
 	return srv.ListenAndServe()
