@@ -37,16 +37,14 @@ func migrate(ctx context.Context, db *sqlx.DB) error {
 }
 
 func (s *Service) Query(ctx context.Context, query string, args ...interface{}) error {
-	stmt, err := s.db.PrepareNamedContext(ctx, query)
+	return Query(ctx, s.db, query, args...)
+}
+
+func Query(ctx context.Context, db *sqlx.DB, query string, args ...interface{}) error {
+	stmt, err := db.PrepareNamedContext(ctx, query)
 	if err != nil {
 		return err
 	}
-	return Query(ctx, stmt, args...)
-}
-
-func isSlice(v interface{}) bool { return reflect.Indirect(reflect.ValueOf(v)).Kind() == reflect.Slice }
-
-func Query(ctx context.Context, stmt *sqlx.NamedStmt, args ...interface{}) error {
 	switch len(args) {
 	case 0:
 		return fmt.Errorf("no arguments present")
@@ -89,3 +87,5 @@ func SelectMany(ctx context.Context, stmt *sqlx.NamedStmt, input interface{}, ta
 	}
 	return stmt.SelectContext(ctx, target, input)
 }
+
+func isSlice(v interface{}) bool { return reflect.Indirect(reflect.ValueOf(v)).Kind() == reflect.Slice }
