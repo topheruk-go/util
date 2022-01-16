@@ -39,7 +39,7 @@ func NewUser(dto *DtoUser) (*User, error) {
 	}, nil
 }
 
-func (u *User) ValidPassword(password string) error {
+func (u *User) Valid(password string) error {
 	err := bcrypt.CompareHashAndPassword(u.PasswordHash, []byte(password))
 	if err != nil {
 		return fmt.Errorf("password mismatch: %w", err)

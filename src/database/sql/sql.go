@@ -1,4 +1,4 @@
-package sqlt
+package sql
 
 import (
 	"context"

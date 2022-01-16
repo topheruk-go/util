@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/topheruk/go/src/database/sqlt"
+	"github.com/topheruk/go/src/database/sql"
 	"github.com/topheruk/go/src/encoding"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -77,5 +77,5 @@ func (s *service) SearchUser(ctx context.Context, query string, v interface{}) (
 }
 
 func (s *service) Query(ctx context.Context, query string, args ...interface{}) error {
-	return sqlt.Query(ctx, s.db, query, args...)
+	return sql.Query(ctx, s.db, query, args...)
 }
