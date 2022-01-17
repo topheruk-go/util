@@ -2,6 +2,7 @@ package sql
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"reflect"
 
@@ -10,6 +11,10 @@ import (
 
 type E interface {
 	PrepareNamedContext(ctx context.Context, query string) (*sqlx.NamedStmt, error)
+}
+
+type T interface {
+	BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error)
 }
 
 func Query(ctx context.Context, db E, query string, args ...interface{}) error {

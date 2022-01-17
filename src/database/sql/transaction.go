@@ -19,13 +19,17 @@ func (tx *Tx) Query(ctx context.Context, query string, args ...interface{}) erro
 func (tx *Tx) Commit() error   { return tx.x.Commit() }
 func (tx *Tx) Rollback() error { return tx.x.Rollback() }
 
-func (db *DB) Transaction(ctx context.Context, doSomething func(tx *Tx) error) error {
+func (db *DB) Transaction(ctx context.Context, fn func(tx *Tx) error) error {
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
-	if err = doSomething(tx); err != nil {
+	if err = fn(tx); err != nil {
 		return tx.Rollback()
 	}
 	return tx.Commit()
+}
+
+func Transaction(ctx context.Context, db T, fn func(tx *Tx) error) error {
+	return nil
 }
