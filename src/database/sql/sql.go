@@ -2,6 +2,7 @@ package sql
 
 import (
 	"context"
+	"database/sql"
 	"sync"
 
 	"github.com/jmoiron/sqlx"
@@ -23,4 +24,9 @@ func New(ctx context.Context, driverName string, dataSourceName string) *DB {
 
 func (db *DB) Query(ctx context.Context, query string, args ...interface{}) error {
 	return Query(ctx, db.s, query, args...)
+}
+
+func (db *DB) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) {
+	tx, err := db.s.BeginTxx(ctx, opts)
+	return &Tx{x: tx}, err
 }

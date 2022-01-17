@@ -8,14 +8,19 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func Query(ctx context.Context, db *sqlx.DB, query string, args ...interface{}) error {
+type E interface {
+	PrepareNamedContext(ctx context.Context, query string) (*sqlx.NamedStmt, error)
+}
+
+func Query(ctx context.Context, db E, query string, args ...interface{}) error {
 	stmt, err := db.PrepareNamedContext(ctx, query)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 	switch len(args) {
 	case 0:
-		return fmt.Errorf("no arguments present")
+		return Exec(ctx, stmt, nil)
 	case 1:
 		if isSlice(args[0]) {
 			return SelectMany(ctx, stmt, args[0], nil)
@@ -29,6 +34,9 @@ func Query(ctx context.Context, db *sqlx.DB, query string, args ...interface{}) 
 }
 
 func Exec(ctx context.Context, stmt *sqlx.NamedStmt, input interface{}) error {
+	if input == nil {
+		input = struct{}{}
+	}
 	_, err := stmt.ExecContext(ctx, input)
 	return err
 }
