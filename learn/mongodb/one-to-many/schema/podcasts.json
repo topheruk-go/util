@@ -1,0 +1,18 @@
+{
+    "collMod": "podcasts",
+    "validator": {
+        "$jsonSchema": {
+            "bsonType": "object",
+            "required": [
+                "_id"
+            ],
+            "properties": {
+                "_id": {
+                    "bsonType": "string",
+                    "minLength": 1,
+                    "description": "podcast id is required"
+                }
+            }
+        }
+    }
+}

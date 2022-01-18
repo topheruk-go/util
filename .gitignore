@@ -12,5 +12,6 @@
 *.out
 
 *.env
+
+# Ignore .CSV files
 *.csv
-# *.yaml
