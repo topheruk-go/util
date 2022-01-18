@@ -12,5 +12,11 @@
 *.out
 
 *.env
+<<<<<<< HEAD
 *.csv
 # *.yaml
+=======
+
+# Ignore .CSV files
+*.csv
+>>>>>>> 16ca25f9f2184993b0d5aaf20719a7a45a2abc50

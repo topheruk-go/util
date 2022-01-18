@@ -4,7 +4,11 @@ go 1.17
 
 require (
 	github.com/joho/godotenv v1.4.0
+<<<<<<< HEAD
 	go.mongodb.org/mongo-driver v1.8.2
+=======
+	go.mongodb.org/mongo-driver v1.8.1
+>>>>>>> 16ca25f9f2184993b0d5aaf20719a7a45a2abc50
 	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f
 )
 
