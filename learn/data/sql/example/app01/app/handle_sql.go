@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/topheruk/go/learn/fs/sql/example/app01/model"
+	"github.com/topheruk/go/learn/data/sql/example/app01/model"
 	"github.com/topheruk/go/src/parse"
 )
 

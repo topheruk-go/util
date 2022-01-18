@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/topheruk/go/learn/fs/sql/example/app01/service"
+	"github.com/topheruk/go/learn/data/sql/example/app01/service"
 	"github.com/topheruk/go/src/encoding"
 )
 

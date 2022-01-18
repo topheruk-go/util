@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/jmoiron/sqlx"
-	sqli "github.com/topheruk/go/src/database/sql"
+	"github.com/topheruk/go/src/database/sqli"
 	"github.com/topheruk/go/src/encoding"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -18,7 +18,7 @@ type service struct {
 }
 
 func newService(ctx context.Context, dataSource string) *service {
-	db := sqli.New("sqlite3", dataSource)
+	db := sqli.MustConnect("sqlite3", dataSource)
 	return &service{db: db}
 }
 

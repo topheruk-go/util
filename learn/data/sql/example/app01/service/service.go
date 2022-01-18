@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"github.com/topheruk/go/learn/fs/sql/example/app01/model"
-	sqli "github.com/topheruk/go/src/database/sql"
+	"github.com/topheruk/go/learn/data/sql/example/app01/model"
+	"github.com/topheruk/go/src/database/sqli"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -14,7 +14,7 @@ type DB struct {
 }
 
 func NewDB(ctx context.Context, dataSource string) *DB {
-	s := sqli.New("sqlite3", dataSource)
+	s := sqli.MustConnect("sqlite3", dataSource)
 	return &DB{DB: s}
 }
 

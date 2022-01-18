@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/topheruk/go/learn/fs/sql/example/app01/app"
-	"github.com/topheruk/go/learn/fs/sql/example/app01/service"
+	"github.com/topheruk/go/learn/data/sql/example/app01/app"
+	"github.com/topheruk/go/learn/data/sql/example/app01/service"
 )
 
 var (
