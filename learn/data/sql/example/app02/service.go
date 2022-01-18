@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/topheruk/go/src/database/sql"
+	sqli "github.com/topheruk/go/src/database/sql"
 	"github.com/topheruk/go/src/encoding"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -14,18 +14,18 @@ import (
 
 type service struct {
 	sync.WaitGroup
-	db *sqlx.DB
+	db *sqli.DB
 }
 
 func newService(ctx context.Context, dataSource string) *service {
-	db := sqlx.MustOpen("sqlite3", dataSource)
+	db := sqli.New("sqlite3", dataSource)
 	return &service{db: db}
 }
 
 func (s *service) Migrate(ctx context.Context, m map[string]string) error {
 	for table, schema := range m {
 		s.Add(1)
-		go migrate(ctx, s.db, table, schema, s.WaitGroup)
+		go migrate(ctx, s.db.DB, table, schema, s.WaitGroup)
 	}
 	s.Wait()
 	s.db.MapperFunc(encoding.ToSnake)
@@ -40,7 +40,7 @@ func migrate(ctx context.Context, db *sqlx.DB, table, schema string, wg sync.Wai
 func (s *service) DropAll(ctx context.Context, m map[string]string) error {
 	for table := range m {
 		s.Add(1)
-		go drop(ctx, s.db, table, s.WaitGroup)
+		go drop(ctx, s.db.DB, table, s.WaitGroup)
 	}
 	s.Wait()
 	return nil
@@ -61,7 +61,7 @@ func (s *service) InsertUser(ctx context.Context, query string, dto *DtoUser) (*
 		return nil, err
 	}
 
-	if err = s.Query(ctx, query, &u); err != nil {
+	if err = s.db.QueryiContext(ctx, query, &u); err != nil {
 		return nil, err
 	}
 
@@ -70,12 +70,8 @@ func (s *service) InsertUser(ctx context.Context, query string, dto *DtoUser) (*
 
 func (s *service) SearchUser(ctx context.Context, query string, v interface{}) (*User, error) {
 	var u User
-	if err := s.Query(ctx, query, &u, v); err != nil {
+	if err := s.db.QueryiContext(ctx, query, &u, v); err != nil {
 		return nil, err
 	}
 	return &u, nil
-}
-
-func (s *service) Query(ctx context.Context, query string, args ...interface{}) error {
-	return sql.Query(ctx, s.db, query, args...)
 }

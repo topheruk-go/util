@@ -21,7 +21,7 @@ type User struct {
 }
 
 func NewUser(dto *DtoUser) (*User, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(dto.Password), 0)
+	hash, err := bcrypt.GenerateFromPassword([]byte(dto.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, fmt.Errorf("encrypting password failed: %w", err)
 	}

@@ -4,17 +4,17 @@ import (
 	"context"
 
 	"github.com/topheruk/go/learn/fs/sql/example/app01/model"
-	"github.com/topheruk/go/src/database/sql"
+	sqli "github.com/topheruk/go/src/database/sql"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type DB struct {
-	*sql.DB
+	*sqli.DB
 }
 
 func NewDB(ctx context.Context, dataSource string) *DB {
-	s := sql.New(ctx, "sqlite3", dataSource)
+	s := sqli.New("sqlite3", dataSource)
 	return &DB{DB: s}
 }
 
@@ -23,7 +23,7 @@ func (db *DB) InsertUser(ctx context.Context, query string, dto *model.DtoUser) 
 	if err != nil {
 		return nil, err
 	}
-	if err = db.Query(ctx, query, &u); err != nil {
+	if err = db.QueryiContext(ctx, query, &u); err != nil {
 		return nil, err
 	}
 	return u, nil
@@ -31,7 +31,7 @@ func (db *DB) InsertUser(ctx context.Context, query string, dto *model.DtoUser) 
 
 func (db *DB) SearchUser(ctx context.Context, query string, v interface{}) (*model.User, error) {
 	var u model.User
-	if err := db.Query(ctx, query, &u, v); err != nil {
+	if err := db.QueryiContext(ctx, query, &u, v); err != nil {
 		return nil, err
 	}
 	return &u, nil

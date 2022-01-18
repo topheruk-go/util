@@ -13,9 +13,6 @@ import (
 
 var (
 	datasourceName = "./learn/fs/sql/example/app01/sql/.sqlite3"
-	sqlTables      = map[string]string{
-		"user": `"id" BLOB PRIMARY KEY,	"email"	TEXT NOT NULL UNIQUE, "password" BLOB NOT NULL,	"created_at" DATETIME NOT NULL`,
-	}
 )
 
 func main() {
@@ -30,7 +27,14 @@ func run() error {
 	defer cancel()
 
 	db := service.NewDB(ctx, datasourceName)
-	go db.Migrate(ctx, sqlTables)
+	go db.Migrate(
+		`CREATE TABLE IF EXISTS table (
+			"id" BLOB PRIMARY KEY,
+			"email"	TEXT NOT NULL UNIQUE, 
+			"password" BLOB NOT NULL,	
+			"created_at" DATETIME NOT NULL
+		)`,
+	)
 
 	app := app.New(db)
 

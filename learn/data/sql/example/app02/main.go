@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"os"
 	"time"
-
-	"github.com/topheruk/go/src/database/sql"
 )
 
 func main() {
@@ -40,7 +38,6 @@ func run() error {
 	}
 
 	// topheruk.sql.DB
-	s := sql.New(ctx, datasourceName)
 
 	fmt.Println("listening... http://localhost:8000/ping")
 	return srv.ListenAndServe()
