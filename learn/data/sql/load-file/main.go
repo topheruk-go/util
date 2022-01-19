@@ -46,7 +46,6 @@ type city struct {
 	Population int    `csv:"population"`
 }
 
-// "learn/data/sql/load-file/city.csv"
 func loadFromCSV(db *sqli.DB, name string) (int, error) {
 	defer measure.Time(time.Now(), "loadFromCSV")
 
