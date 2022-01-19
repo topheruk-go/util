@@ -17,6 +17,16 @@ func NewDB(db *sqlx.DB, driverName string) *DB {
 	return &DB{DB: db}
 }
 
+// Example usage.
+//
+// 	import (
+// 		_ "github.com/mattn/go-sqlite3"
+// 		"github.com/topheruk/go/src/database/sqli/db.go"
+// 	)
+//
+// 	func main() {
+//		db, err := sqli.Open("sqlite3", ".sqlite3")
+// 	}
 func Open(driverName string, dataSourceName string) (*DB, error) {
 	db, err := sqlx.Open(driverName, dataSourceName)
 	if err != nil {
@@ -26,16 +36,46 @@ func Open(driverName string, dataSourceName string) (*DB, error) {
 	return &DB{DB: db}, nil
 }
 
+// Example usage.
+//
+// 	import (
+// 		_ "github.com/mattn/go-sqlite3"
+// 		"github.com/topheruk/go/src/database/sqli/db.go"
+// 	)
+//
+// 	func main() {
+//		db := sqli.MustOpen("sqlite3", ".sqlite3")
+// 	}
 func MustOpen(driverName string, dataSourceName string) *DB {
 	db := sqlx.MustOpen(driverName, dataSourceName)
 	go db.MapperFunc(encoding.ToSnake)
 	return &DB{DB: db}
 }
 
+// Example usage.
+//
+// 	import (
+// 		_ "github.com/mattn/go-sqlite3"
+// 		"github.com/topheruk/go/src/database/sqli/db.go"
+// 	)
+//
+// 	func main() {
+//		db, err := sqli.Connect("sqlite3", ".sqlite3")
+// 	}
 func Connect(driverName string, dataSourceName string) (*DB, error) {
 	return ConnectContext(context.Background(), driverName, dataSourceName)
 }
 
+// Example usage.
+//
+// 	import (
+// 		_ "github.com/mattn/go-sqlite3"
+// 		"github.com/topheruk/go/src/database/sqli/db.go"
+// 	)
+//
+// 	func main() {
+//		db, err := sqli.ConnectContext(context.TODO(), "sqlite3", ".sqlite3")
+// 	}
 func ConnectContext(ctx context.Context, driverName string, dataSourceName string) (*DB, error) {
 	db, err := Open(driverName, dataSourceName)
 	if err != nil {
@@ -47,6 +87,16 @@ func ConnectContext(ctx context.Context, driverName string, dataSourceName strin
 	return db, nil
 }
 
+// Example usage.
+//
+// 	import (
+// 		_ "github.com/mattn/go-sqlite3"
+// 		"github.com/topheruk/go/src/database/sqli/db.go"
+// 	)
+//
+// 	func main() {
+//		db := sqli.MustConnect("sqlite3", ".sqlite3")
+// 	}
 func MustConnect(driverName string, dataSourceName string) *DB {
 	db, err := Connect(driverName, dataSourceName)
 	if err != nil {
