@@ -61,7 +61,7 @@ func (s *service) InsertUser(ctx context.Context, query string, dto *DtoUser) (*
 		return nil, err
 	}
 
-	if err = s.db.QueryiContext(ctx, query, &u); err != nil {
+	if err = s.db.QueryiContext(ctx, query, u); err != nil {
 		return nil, err
 	}
 

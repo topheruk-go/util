@@ -8,7 +8,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/topheruk/go/src/parse"
 
-	db "github.com/topheruk/go/learn/net/mongodb/database"
+	// learn\data\mongodb\app-02\database
+	db "github.com/topheruk/go/learn/data/mongodb/app-02/database"
 )
 
 type app struct {

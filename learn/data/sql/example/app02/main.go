@@ -16,7 +16,7 @@ func main() {
 }
 
 var (
-	datasourceName = "./learn/fs/sql/example/app01/web.sqlite3"
+	datasourceName = "./learn/data/sql/example/app02/web.sqlite3"
 	sqlTables      = map[string]string{
 		"user": `"id" BLOB PRIMARY KEY,	"email"	TEXT NOT NULL UNIQUE, "password" BLOB NOT NULL,	"created_at" DATETIME NOT NULL`,
 	}

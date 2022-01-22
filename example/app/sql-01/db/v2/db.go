@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 
 	"github.com/google/uuid"
 	"github.com/topheruk/go/example/app/sql-01/model/v1"
@@ -45,6 +46,9 @@ func (db *DB) InsertLaptopLoan(ctx context.Context, q string, lf *model.LoanForm
 	// end_date datetime not null,
 	// tmp_path text not null,
 	lf.ID = uuid.New()
+
+	log.Println(lf.ID)
+
 	_, err = stmt.ExecContext(ctx, lf.ID, lf.StudentID, lf.StartDate, lf.EndDate, lf.TmpPath)
 	return err
 }
