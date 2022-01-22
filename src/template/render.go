@@ -7,17 +7,20 @@ import (
 	"sync"
 )
 
-func Render(path ...string) (f func(rw http.ResponseWriter, r *http.Request, data interface{}), err error) {
+type RenderFunc func(rw http.ResponseWriter, r *http.Request, data interface{})
+
+func Render(path ...string) (RenderFunc, error) {
 	var (
 		init sync.Once
 
 		tpl *template.Template
 		buf *bytes.Buffer
+		err error
 	)
 
 	init.Do(func() { tpl, err = template.ParseFiles(path...) })
 
-	f = func(rw http.ResponseWriter, r *http.Request, data interface{}) {
+	return func(rw http.ResponseWriter, r *http.Request, data interface{}) {
 		buf = &bytes.Buffer{}
 		err = tpl.Execute(buf, data)
 		if err != nil {
@@ -26,7 +29,5 @@ func Render(path ...string) (f func(rw http.ResponseWriter, r *http.Request, dat
 		}
 
 		buf.WriteTo(rw)
-	}
-
-	return f, err
+	}, err
 }
