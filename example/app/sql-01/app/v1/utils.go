@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/topheruk/go/example/app/sql-01/model"
+	"github.com/topheruk/go/example/app/sql-01/model/v1"
 )
 
 func timeDuration(t time.Time) (start, end string) {
@@ -30,7 +30,7 @@ func parseMultiPartForm(rw http.ResponseWriter, r *http.Request, lf *model.LoanF
 	}
 	defer f.Close()
 
-	lf.UserID, lf.StartDate, lf.EndDate, err = parseForm(rw, r)
+	lf.StudentID, lf.StartDate, lf.EndDate, err = parseForm(rw, r)
 	if err != nil {
 		return err
 	}

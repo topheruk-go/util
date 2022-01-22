@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/topheruk/go/example/app/sql-01/db"
+	"github.com/topheruk/go/example/app/sql-01/db/v1"
 	"github.com/topheruk/go/src/encoding"
 	"github.com/topheruk/go/src/template"
 )

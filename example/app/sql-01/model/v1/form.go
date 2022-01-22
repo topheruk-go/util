@@ -3,10 +3,13 @@ package model
 import (
 	"fmt"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type LoanForm struct {
-	UserID    string
+	ID        uuid.UUID
+	StudentID string
 	StartDate *time.Time
 	EndDate   *time.Time
 	TmpPath   string
@@ -14,5 +17,5 @@ type LoanForm struct {
 
 // Debugging
 func (lf LoanForm) String() string {
-	return fmt.Sprintf("user %s; start %v; end %v;file: %s", lf.UserID, lf.StartDate, lf.EndDate, lf.TmpPath)
+	return fmt.Sprintf("user %s; start %v; end %v;file: %s", lf.StudentID, lf.StartDate, lf.EndDate, lf.TmpPath)
 }

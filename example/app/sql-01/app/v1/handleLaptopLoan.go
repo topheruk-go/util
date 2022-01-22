@@ -4,25 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/topheruk/go/example/app/sql-01/model"
+	"github.com/topheruk/go/example/app/sql-01/model/v1"
 )
-
-func (a *App) routes() {
-	a.m.HandleFunc("/", a.handleEcho("ping"))
-	a.m.Handle("/favicon.ico", http.NotFoundHandler())
-
-	a.m.Get("/laptop-loan", a.handleLaptopLoan("example/app/sql-01/views/index.html"))
-	a.m.Post("/laptop-loan", a.handleLaptopLoanPost("example/app/sql-01/tmp", "/api/v1/laptop-loan", "/laptop-loan"))
-
-	a.m.Post("/api/v1/laptop-loan", a.handleAPILaptopLoan())
-	a.m.Get("/api/v1/laptop-loan/", a.handleAPISearchLaptopLoan())
-}
-
-func (a *App) handleEcho(message string) http.HandlerFunc {
-	return func(rw http.ResponseWriter, r *http.Request) {
-		a.respond(rw, r, message, http.StatusOK)
-	}
-}
 
 func (a *App) handleLaptopLoan(path ...string) http.HandlerFunc {
 	type response struct {
@@ -35,11 +18,13 @@ func (a *App) handleLaptopLoan(path ...string) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		sd, ed := timeDuration(time.Now())
 
-		render(rw, r, &response{
+		resp := &response{
 			PostURL: r.URL.Path,
 			MinDate: sd,
 			MaxDate: ed,
-		})
+		}
+
+		render(rw, r, resp)
 	}
 }
 
