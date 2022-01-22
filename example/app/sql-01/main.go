@@ -30,11 +30,11 @@ func run() error {
 	if _, err := db.ExecContext(context.TODO(), `
 		drop table if exists "laptop_loan";
 		create table if not exists "laptop_loan" (
-			id blob,
-			student_id text,
-			start_date datetime not null,
-			end_date datetime not null,
-			tmp_path text not null,
+			"id" blob,
+			"student_id" text,
+			"start_date" datetime not null,
+			"end_date" datetime not null,
+			"tmp_path" text not null,
 			primary key("id")
 		);
 	`); err != nil {

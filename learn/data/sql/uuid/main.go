@@ -18,47 +18,69 @@ func main() {
 }
 
 func run() error {
-	db, err := sql.Open("sqlite3", "learn/data/sql/uuid/.sqlite3")
+	db, err := sql.Open("sqlite3", "learn/data/sql/uuid/.db")
 	if err != nil {
 		return err
 	}
 
-	// db.Exec(`
-	// 	DROP TABLE IF EXISTS "user";
-	// 	CREATE TABLE IF NOT EXISTS "user" (
-	// 		"id" BLOB PRIMARY KEY,
-	// 		"name" TEXT NOT NULL
-	// 	);
-	// `)
-
 	db.Exec(`
 		drop table if exists "user";
 		create table if not exists "user" (
-			"id" blob primary key,
-			"name" text not null
+			"id" blob,
+			"name" text not null,
+			primary key ("id")
 		);
 	`)
 
-	type person struct {
-		ID   uuid.UUID `db:"id"`
-		Name string    `db:"name"`
+	id1 := uuid.New()
+	if err := insert(db, id1, "foo"); err != nil {
+		return err
 	}
 
-	p := person{Name: "Matt"}
-	p.ID, _ = uuid.NewUUID()
+	id2 := uuid.New()
+	if err := insert(db, id2, "baz"); err != nil {
+		return err
+	}
 
-	stmt, _ := db.Prepare(`insert into "user" values (?, ?)`)
+	user, err := get(db, id1)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%v\n", user.Name)
+
+	return nil
+}
+
+type person struct {
+	ID   uuid.UUID `db:"id"`
+	Name string    `db:"name"`
+}
+
+func insert(db *sql.DB, uuid uuid.UUID, name string) error {
+	stmt, err := db.Prepare(`insert into "user" values (?, ?)`)
+	if err != nil {
+		return err
+	}
 	defer stmt.Close()
+
+	p := person{Name: name}
+	p.ID = uuid
+
 	stmt.Exec(p.ID, p.Name)
+	return nil
+}
 
-	// get user
-	stmt, _ = db.Prepare(`select * from "user" where id = ?`)
+func get(db *sql.DB, uuid uuid.UUID) (*person, error) {
+	stmt, err := db.Prepare(`select * from "user" where id = ?`)
+	if err != nil {
+		return nil, err
+	}
 	defer stmt.Close()
-	row := stmt.QueryRow(p.ID)
+
+	row := stmt.QueryRow(uuid)
 
 	var q person
 	row.Scan(&q.ID, &q.Name)
-	fmt.Println(q)
-
-	return nil
+	return &q, nil
 }
