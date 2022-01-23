@@ -2,14 +2,12 @@ package main
 
 import (
 	"net/http"
-
-	"github.com/go-chi/chi/middleware"
 )
 
 func (a *app) routes() {
-	a.m.Use(middleware.Logger)
-	a.m.Handle("/static/*", a.fileServer("/static/", "static/public"))
-	a.m.Get("/*", a.handleIndex("views/index.html"))
+	// a.m.Use(middleware.Logger)
+	a.m.Handle("/static/*", a.fileServer("/static/", "app/client/public"))
+	a.m.Get("/*", a.handleIndex("app/views/index.html"))
 }
 
 func (a *app) fileServer(prefix, dir string) http.Handler {

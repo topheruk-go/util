@@ -10,12 +10,12 @@ import css from 'rollup-plugin-css-only';
 const production = !process.env.ROLLUP_WATCH;
 
 export default {
-	input: 'static/src/main.ts',
+	input: 'app/client/src/main.ts',
 	output: {
 		sourcemap: true,
 		format: 'iife',
 		name: 'app',
-		file: 'static/public/build/bundle.js'
+		file: 'app/client/public/build/bundle.js'
 	},
 	plugins: [
 		svelte({
@@ -28,7 +28,7 @@ export default {
 		}),
 		// we'll extract any component CSS out into
 		// a separate file - better for performance
-		css({ output: 'static/public/bundle.css' }),
+		css({ output: 'app/client/public/bundle.css' }),
 
 		// If you have external dependencies installed from
 		// npm, you'll most likely need these plugins. In
@@ -51,7 +51,7 @@ export default {
 
 		// Watch the `public` directory and refresh the
 		// browser on changes when not in production
-		!production && livereload('static/public'),
+		!production && livereload('app/client/public'),
 
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify
