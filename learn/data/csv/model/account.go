@@ -3,7 +3,7 @@ package model
 import (
 	"io"
 
-	"github.com/topheruk/go/learn/fs/csv/serde"
+	"github.com/topheruk/go/learn/data/csv/serde"
 )
 
 type Account struct {
