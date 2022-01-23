@@ -23,14 +23,18 @@ func run() error {
 		return err
 	}
 
-	db.Exec(`
-		drop table if exists "user";
-		create table if not exists "user" (
-			"id" blob,
-			"name" text not null,
-			primary key ("id")
+	_, err = db.Exec(`
+		DROP TABLE IF EXISTS user;
+		CREATE TABLE IF NOT EXISTS user (
+			id BLOB,
+			name TEXT NOT NULL,
+			PRIMARY KEY (id)
 		);
 	`)
+
+	if err != nil {
+		panic(err)
+	}
 
 	id1 := uuid.New()
 	if err := insert(db, id1, "foo"); err != nil {
@@ -58,7 +62,7 @@ type person struct {
 }
 
 func insert(db *sql.DB, uuid uuid.UUID, name string) error {
-	stmt, err := db.Prepare(`insert into "user" values (?, ?)`)
+	stmt, err := db.Prepare(`INSERT INTO user VALUES (?, ?)`)
 	if err != nil {
 		return err
 	}
@@ -72,7 +76,7 @@ func insert(db *sql.DB, uuid uuid.UUID, name string) error {
 }
 
 func get(db *sql.DB, uuid uuid.UUID) (*person, error) {
-	stmt, err := db.Prepare(`select * from "user" where id = ?`)
+	stmt, err := db.Prepare(`SELECT * FROM user WHERE id = ?`)
 	if err != nil {
 		return nil, err
 	}

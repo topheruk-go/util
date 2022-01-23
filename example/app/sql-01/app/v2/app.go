@@ -27,7 +27,7 @@ func (a *App) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	a.m.ServeHTTP(rw, r)
 }
 
-// panic if error
+// panic if an error occures
 func (a *App) render(path ...string) template.RenderFunc {
 	render, err := template.Render(path...)
 	if err != nil {
