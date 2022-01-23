@@ -9,7 +9,7 @@ import (
 
 type RenderFunc func(rw http.ResponseWriter, r *http.Request, data interface{})
 
-func Render(path ...string) (RenderFunc, error) {
+func Render(filenames ...string) (RenderFunc, error) {
 	var (
 		init sync.Once
 
@@ -18,7 +18,7 @@ func Render(path ...string) (RenderFunc, error) {
 		err error
 	)
 
-	init.Do(func() { tpl, err = template.ParseFiles(path...) })
+	init.Do(func() { tpl, err = template.ParseFiles(filenames...) })
 
 	return func(rw http.ResponseWriter, r *http.Request, data interface{}) {
 		buf = &bytes.Buffer{}
