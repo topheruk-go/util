@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/topheruk/go/src/encoding"
 	tmpl "github.com/topheruk/go/src/template"
 )
 
@@ -28,4 +29,12 @@ func (a *app) render(filenames ...string) tmpl.RenderFunc {
 		panic(fmt.Errorf("error parsing template: %w", err))
 	}
 	return render
+}
+
+func (a *app) decode(rw http.ResponseWriter, r *http.Request, data interface{}) error {
+	return encoding.Decode(rw, r, data)
+}
+
+func (a *app) respond(rw http.ResponseWriter, r *http.Request, data interface{}, status int) {
+	encoding.Respond(rw, r, data, status)
 }
