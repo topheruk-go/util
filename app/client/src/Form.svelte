@@ -3,7 +3,9 @@
 <script lang="ts">
     import { formattedDate } from "./form";
 
-    //
+    // could use JWT for authnetication
+    // when staff receives email and agrees then generate a JWT token
+    // find out more
 
     let fs;
     let name: string;
@@ -42,7 +44,7 @@
         <input type="file" name="file" bind:files={fs} accept=".pdf" />
     </label>
 
-    <!-- <label>
+    <label>
         <p>name</p>
         <input type="text" name="name" bind:value={name} />
     </label>
@@ -55,9 +57,9 @@
     <label>
         <p>age</p>
         <input type="number" name="age" bind:value={age} min="0" max="10" />
-    </label> -->
+    </label>
 
-    <!-- <label>
+    <label>
         <p>start date</p>
         <input type="date" name="start_date" bind:value={start} />
     </label>
@@ -65,7 +67,7 @@
     <label>
         <p>end date</p>
         <input type="date" name="end_date" bind:value={end} />
-    </label> -->
+    </label>
 
     <button type="submit">Please save me...</button>
 </form>
