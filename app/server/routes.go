@@ -32,16 +32,17 @@ func (a *app) handleApi() http.HandlerFunc {
 		// Name  string `json:"name"`
 		// Age   int    `json:"age"`
 		// Email string `json:"email"`
-		File []byte `json:"file"`
+		File []byte
 		// StartDate *time.Time `json:"start_date"`
 		// EndDate   *time.Time `json:"end_date"`
 	}
 	return func(rw http.ResponseWriter, r *http.Request) {
-		var resp p
+		var resp map[string]interface{}
 		if err := a.decode(rw, r, &resp); err != nil {
 			a.respond(rw, r, err, http.StatusInternalServerError)
 			return
 		}
+		// resp["file"]
 		log.Println(resp)
 		a.respond(rw, r, "ok", http.StatusOK)
 	}

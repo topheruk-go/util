@@ -3,10 +3,6 @@
 <script lang="ts">
     import { formattedDate } from "./form";
 
-    // could use JWT for authnetication
-    // when staff receives email and agrees then generate a JWT token
-    // find out more
-
     let fs;
     let name: string;
     let age: number;
@@ -15,19 +11,34 @@
     let start = formattedDate(new Date());
     let end = start;
 
-    async function submit(this: HTMLFormElement, e: Event) {
-        // let body: Record<string, FormDataEntryValue> = {};
-        // for (const [k, v] of new FormData(this)) {
-        //     body[k] = v;
-        // }
+    async function ftob(data: Blob): Promise<string> {
+        let url = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.readAsDataURL(data);
+        });
 
+        return url.split(",", 2)[1];
+    }
+
+    async function stob(data: string): Promise<string> {
+        let url = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.readAsDataURL(new Blob([data]));
+        });
+
+        return url.split(",", 2)[1];
+    }
+
+    async function submit(this: HTMLFormElement, e: Event) {
         file = new FormData(this).get("file") as File;
-        console.log(await file.arrayBuffer());
+
         let json = JSON.stringify({
-            name,
-            age,
-            email,
-            file: file,
+            // name,
+            // age,
+            // email,
+            file: await stob("Hello, World"),
         });
 
         await fetch("http://localhost:8000/api/v1/user", {
@@ -44,7 +55,7 @@
         <input type="file" name="file" bind:files={fs} accept=".pdf" />
     </label>
 
-    <label>
+    <!-- <label>
         <p>name</p>
         <input type="text" name="name" bind:value={name} />
     </label>
@@ -67,7 +78,7 @@
     <label>
         <p>end date</p>
         <input type="date" name="end_date" bind:value={end} />
-    </label>
+    </label> -->
 
     <button type="submit">Please save me...</button>
 </form>

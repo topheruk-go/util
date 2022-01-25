@@ -12,4 +12,3 @@ export interface Loan {
 export class Loan {
     constructor(name: string, age: string, start: string, end: string) { }
 }
-
