@@ -105,11 +105,11 @@ func MustConnect(driverName string, dataSourceName string) *DB {
 	return db
 }
 
-func (db *DB) Queryi(query string, args ...interface{}) error {
-	return db.QueryiContext(context.Background(), query, args...)
+func (db *DB) RunNamedQuery(query string, args ...interface{}) error {
+	return db.RunNamedQueryContext(context.Background(), query, args...)
 }
 
-func (db *DB) QueryiContext(ctx context.Context, query string, args ...interface{}) error {
+func (db *DB) RunNamedQueryContext(ctx context.Context, query string, args ...interface{}) error {
 	return preparedNamedQuery(ctx, db, query, args...)
 }
 
