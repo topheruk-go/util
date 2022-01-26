@@ -3,6 +3,7 @@
 <script lang="ts">
     import { parseForm } from "./form";
 
+    export let api: string;
     export let action: string;
     export let method: string = "post";
     export let enctype: string = "multipart/form-data";
@@ -11,7 +12,7 @@
         let fr = await parseForm(this);
         fr["age"] = parseInt(fr["age"] as string);
 
-        await fetch(this.action, {
+        await fetch(api, {
             method,
             headers: [["Content_Type", "application/json"]],
             body: JSON.stringify(fr),

@@ -413,7 +413,7 @@
     			attr_dev(a, "href", "https://svelte.dev/tutorial");
     			add_location(a, file$1, 9, 2, 129);
     			add_location(p, file$1, 7, 1, 111);
-    			set_custom_element_data(signup_form, "action", "http://localhost:8000/api/v1/user");
+    			set_custom_element_data(signup_form, "href", "http://localhost:8000/api/v1/user");
     			add_location(signup_form, file$1, 13, 1, 232);
     			add_location(main, file$1, 5, 0, 79);
     		},
@@ -608,31 +608,31 @@
     			button = element("button");
     			button.textContent = "submit";
     			this.c = noop;
-    			add_location(p0, file, 20, 8, 554);
+    			add_location(p0, file, 21, 8, 564);
     			attr_dev(input0, "type", "text");
     			attr_dev(input0, "name", "name");
     			input0.required = true;
-    			add_location(input0, file, 21, 8, 574);
-    			add_location(label0, file, 19, 4, 538);
-    			add_location(p1, file, 25, 8, 651);
+    			add_location(input0, file, 22, 8, 584);
+    			add_location(label0, file, 20, 4, 548);
+    			add_location(p1, file, 26, 8, 661);
     			attr_dev(input1, "type", "number");
     			attr_dev(input1, "name", "age");
     			input1.required = true;
-    			add_location(input1, file, 26, 8, 670);
-    			add_location(label1, file, 24, 4, 635);
-    			add_location(p2, file, 30, 8, 748);
+    			add_location(input1, file, 27, 8, 680);
+    			add_location(label1, file, 25, 4, 645);
+    			add_location(p2, file, 31, 8, 758);
     			attr_dev(input2, "type", "file");
     			attr_dev(input2, "name", "file");
     			attr_dev(input2, "accept", ".pdf");
     			input2.required = true;
-    			add_location(input2, file, 31, 8, 768);
-    			add_location(label2, file, 29, 4, 732);
+    			add_location(input2, file, 32, 8, 778);
+    			add_location(label2, file, 30, 4, 742);
     			attr_dev(button, "type", "submit");
-    			add_location(button, file, 34, 4, 843);
+    			add_location(button, file, 35, 4, 853);
     			attr_dev(form, "action", /*action*/ ctx[0]);
     			attr_dev(form, "method", /*method*/ ctx[1]);
     			attr_dev(form, "enctype", /*enctype*/ ctx[2]);
-    			add_location(form, file, 18, 0, 465);
+    			add_location(form, file, 19, 0, 475);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -697,6 +697,7 @@
     function instance($$self, $$props, $$invalidate) {
     	let { $$slots: slots = {}, $$scope } = $$props;
     	validate_slots('signup-form', slots, []);
+    	let { href } = $$props;
     	let { action } = $$props;
     	let { method = "post" } = $$props;
     	let { enctype = "multipart/form-data" } = $$props;
@@ -705,7 +706,7 @@
     		let fr = await parseForm(this);
     		fr["age"] = parseInt(fr["age"]);
 
-    		await fetch(this.action, {
+    		await fetch(href, {
     			method,
     			headers: [["Content_Type", "application/json"]],
     			body: JSON.stringify(fr)
@@ -714,13 +715,14 @@
     		location.reload();
     	}
 
-    	const writable_props = ['action', 'method', 'enctype'];
+    	const writable_props = ['href', 'action', 'method', 'enctype'];
 
     	Object.keys($$props).forEach(key => {
     		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<signup-form> was created with unknown prop '${key}'`);
     	});
 
     	$$self.$$set = $$props => {
+    		if ('href' in $$props) $$invalidate(4, href = $$props.href);
     		if ('action' in $$props) $$invalidate(0, action = $$props.action);
     		if ('method' in $$props) $$invalidate(1, method = $$props.method);
     		if ('enctype' in $$props) $$invalidate(2, enctype = $$props.enctype);
@@ -728,6 +730,7 @@
 
     	$$self.$capture_state = () => ({
     		parseForm,
+    		href,
     		action,
     		method,
     		enctype,
@@ -735,6 +738,7 @@
     	});
 
     	$$self.$inject_state = $$props => {
+    		if ('href' in $$props) $$invalidate(4, href = $$props.href);
     		if ('action' in $$props) $$invalidate(0, action = $$props.action);
     		if ('method' in $$props) $$invalidate(1, method = $$props.method);
     		if ('enctype' in $$props) $$invalidate(2, enctype = $$props.enctype);
@@ -744,7 +748,7 @@
     		$$self.$inject_state($$props.$$inject);
     	}
 
-    	return [action, method, enctype, submit];
+    	return [action, method, enctype, submit, href];
     }
 
     class Form extends SvelteElement {
@@ -761,12 +765,21 @@
     			instance,
     			create_fragment,
     			safe_not_equal,
-    			{ action: 0, method: 1, enctype: 2 },
+    			{
+    				href: 4,
+    				action: 0,
+    				method: 1,
+    				enctype: 2
+    			},
     			null
     		);
 
     		const { ctx } = this.$$;
     		const props = this.attributes;
+
+    		if (/*href*/ ctx[4] === undefined && !('href' in props)) {
+    			console.warn("<signup-form> was created without expected prop 'href'");
+    		}
 
     		if (/*action*/ ctx[0] === undefined && !('action' in props)) {
     			console.warn("<signup-form> was created without expected prop 'action'");
@@ -785,7 +798,16 @@
     	}
 
     	static get observedAttributes() {
-    		return ["action", "method", "enctype"];
+    		return ["href", "action", "method", "enctype"];
+    	}
+
+    	get href() {
+    		return this.$$.ctx[4];
+    	}
+
+    	set href(href) {
+    		this.$$set({ href });
+    		flush();
     	}
 
     	get action() {
