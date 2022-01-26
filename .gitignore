@@ -15,3 +15,8 @@
 
 # Ignore .CSV files
 *.csv
+
+/node_modules/
+/public/build/
+
+.DS_Store
