@@ -5,16 +5,18 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/topheruk/go/src/database/sqli"
 	"github.com/topheruk/go/src/encoding"
 	tmpl "github.com/topheruk/go/src/template"
 )
 
 type app struct {
-	m *chi.Mux
+	m  *chi.Mux
+	db *sqli.DB
 }
 
-func newApp() *app {
-	a := &app{m: chi.NewMux()}
+func newApp(db *sqli.DB) *app {
+	a := &app{m: chi.NewMux(), db: db}
 	a.routes()
 	return a
 }

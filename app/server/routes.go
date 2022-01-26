@@ -1,12 +1,13 @@
 package main
 
 import (
-	"log"
 	"net/http"
+
+	"github.com/go-chi/chi/middleware"
 )
 
 func (a *app) routes() {
-	// a.m.Use(middleware.Logger)
+	a.m.Use(middleware.Logger)
 	a.m.Handle("/static/*", a.fileServer("/static/", "app/client/public"))
 	a.m.Get("/*", a.handleIndex("app/views/index.html"))
 
@@ -28,22 +29,26 @@ func (a *app) handleIndex(filenames ...string) http.HandlerFunc {
 }
 
 func (a *app) handleApi() http.HandlerFunc {
-	type p struct {
-		// Name  string `json:"name"`
-		// Age   int    `json:"age"`
-		// Email string `json:"email"`
-		File []byte
-		// StartDate *time.Time `json:"start_date"`
-		// EndDate   *time.Time `json:"end_date"`
-	}
 	return func(rw http.ResponseWriter, r *http.Request) {
-		var resp map[string]interface{}
-		if err := a.decode(rw, r, &resp); err != nil {
+		var dto LoanDto
+		if err := a.decode(rw, r, &dto); err != nil {
 			a.respond(rw, r, err, http.StatusInternalServerError)
 			return
 		}
-		// resp["file"]
-		log.Println(resp)
+
+		f, err := btof(dto.File)
+		if err != nil {
+			a.respond(rw, r, err, http.StatusInternalServerError)
+			return
+		}
+		defer f.Close()
+
+		l := newLoan(dto, f.Name())
+		if err = a.db.Queryi(`INSERT INTO "loan" VALUES (:id,:name,:age,:path)`, l); err != nil {
+			a.respond(rw, r, err, http.StatusInternalServerError)
+			return
+		}
+
 		a.respond(rw, r, "ok", http.StatusOK)
 	}
 }

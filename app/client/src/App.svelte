@@ -11,6 +11,8 @@
 		<a href="https://svelte.dev/tutorial">Svelte tutorial</a>
 		to learn how to build Svelte apps.
 	</p>
+
+	<signup-form action="http://localhost:8000/api/v1/user" />
 </main>
 
 <style>
