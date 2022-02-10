@@ -50,7 +50,7 @@ func TestPing(t *testing.T) {
 		{pathname: "/person/1", method: http.MethodDelete},
 		{pathname: "/person/3", method: http.MethodDelete, status: http.StatusInternalServerError},
 
-		// {pathname: "/person/2", method: http.MethodPost}
+		// {pathname: "/person/2", method: http.MethodPut}
 	}
 
 	for i, tc := range tt {
