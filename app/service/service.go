@@ -2,8 +2,10 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jmoiron/sqlx"
@@ -46,7 +48,7 @@ func (s *Service) Todo(rw http.ResponseWriter, r *http.Request) {
 	s.Err(rw, r, errors.New("todo"), http.StatusInternalServerError)
 }
 
-func (s *Service) ID(rw http.ResponseWriter, r *http.Request) (int, error) {
+func (s *Service) getId(rw http.ResponseWriter, r *http.Request) (int, error) {
 	return strconv.Atoi(chi.URLParamFromCtx(r.Context(), "id"))
 }
 
@@ -55,6 +57,10 @@ func (s *Service) Decode(rw http.ResponseWriter, r *http.Request, data interface
 }
 
 func (s *Service) Echo(message string) http.HandlerFunc { return handler.Echo(message) }
+
+func (s *Service) AbsoluteURL(rw http.ResponseWriter, r *http.Request, id interface{}) string {
+	return fmt.Sprintf("%s://%s%s/%v", strings.ToLower(strings.SplitN(r.Proto, "/", 2)[0]), r.Host, r.URL, id)
+}
 
 func (s *Service) migrate() {
 	// pull from migration folder if this was a bigger project

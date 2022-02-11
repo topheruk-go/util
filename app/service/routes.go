@@ -16,6 +16,8 @@ func (s *Service) routes() {
 	s.m.Delete("/person/{id}", s.handleDeletePerson("DELETE FROM person WHERE id=?"))
 }
 
+// 201 if created
+// Add newly created uri to location header
 func (s *Service) handleInsertPerson(query string) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		var dto model.PersonDTO
@@ -34,7 +36,8 @@ func (s *Service) handleInsertPerson(query string) http.HandlerFunc {
 			s.Err(rw, r, err, http.StatusInternalServerError)
 			return
 		}
-		s.Respond(rw, r, &p, http.StatusOK)
+		rw.Header().Add("Location", s.AbsoluteURL(rw, r, p.ID))
+		s.Respond(rw, r, &p, http.StatusCreated)
 	}
 }
 
@@ -52,13 +55,14 @@ func (s *Service) handleSelectPersonSlice(query string) http.HandlerFunc {
 
 func (s *Service) handleSelectPerson(query string) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-		uid, err := s.ID(rw, r)
+		uid, err := s.getId(rw, r)
 		if err != nil {
 			s.Err(rw, r, err, http.StatusBadRequest)
 			return
 		}
 		var p model.Person
 		if err := s.db.Get(&p, query, uid); err != nil {
+			// should this be not found?
 			s.Err(rw, r, err, http.StatusInternalServerError)
 			return
 		}
@@ -66,10 +70,11 @@ func (s *Service) handleSelectPerson(query string) http.HandlerFunc {
 	}
 }
 
+// 204 on successful req (Put, Patch, Delete)
 func (s *Service) handleDeletePerson(query string) http.HandlerFunc {
 	// type response struct{}
 	return func(rw http.ResponseWriter, r *http.Request) {
-		uid, err := s.ID(rw, r)
+		uid, err := s.getId(rw, r)
 		if err != nil {
 			s.Err(rw, r, err, http.StatusBadRequest)
 			return
