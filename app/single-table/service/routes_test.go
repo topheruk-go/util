@@ -70,6 +70,11 @@ func TestPing(t *testing.T) {
 			assert.Equal(t, err, nil)
 
 			assert.Equal(t, res.StatusCode, tc.status)
+
+			fmt.Printf("=== PRINT %s\n", t.Name())
+			for k, v := range res.Header {
+				fmt.Printf("%s: %s\n", k, strings.Join(v, ""))
+			}
 		})
 	}
 }
