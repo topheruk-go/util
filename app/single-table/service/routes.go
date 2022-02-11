@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/topheruk/go/app/model"
+	"github.com/topheruk/go/app/single-table/model"
 )
 
 func (s *Service) routes() {
@@ -87,10 +87,12 @@ func (s *Service) handleDeletePerson(query string) http.HandlerFunc {
 			return
 		}
 		// TODO: feels like a hack, investigate
+		// I don;t think I should be returning an error
 		if i, _ := res.RowsAffected(); i == 0 {
 			s.Err(rw, r, errors.New("error: could not find a match"), http.StatusInternalServerError)
 			return
 		}
+		// TODO: no content over here too
 		s.Respond(rw, r, uid, http.StatusOK)
 	}
 }
