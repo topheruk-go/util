@@ -94,6 +94,6 @@ func (s *Service) handleDeletePerson(query string) http.HandlerFunc {
 			return
 		}
 		// TODO: no content over here too
-		s.Respond(rw, r, uid, http.StatusOK)
+		s.Respond(rw, r, nil, http.StatusNoContent)
 	}
 }

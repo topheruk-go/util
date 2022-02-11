@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -47,7 +48,7 @@ func TestPing(t *testing.T) {
 		{pathname: "/person/2", status: http.StatusOK},
 		{pathname: "/person/3", status: http.StatusInternalServerError},
 
-		{pathname: "/person/1", method: http.MethodDelete},
+		{pathname: "/person/1", method: http.MethodDelete, status: http.StatusNoContent},
 		{pathname: "/person/3", method: http.MethodDelete, status: http.StatusInternalServerError},
 
 		// {pathname: "/person/2", method: http.MethodPut}
@@ -66,15 +67,21 @@ func TestPing(t *testing.T) {
 			assert.Equal(t, err, nil)
 			req.Header.Add("Content-Type", tc.contentType)
 
+			fmt.Printf("Request Method: %s\nRequest URL: %s\n", req.Method, req.URL)
+			for k, v := range req.Header {
+				fmt.Printf("%s: %s\n", k, strings.Join(v, ""))
+			}
+
 			res, err := srv.Client().Do(req)
 			assert.Equal(t, err, nil)
 
 			assert.Equal(t, res.StatusCode, tc.status)
 
-			fmt.Printf("=== PRINT %s\n", t.Name())
 			for k, v := range res.Header {
 				fmt.Printf("%s: %s\n", k, strings.Join(v, ""))
 			}
+			b, _ := io.ReadAll(res.Body)
+			fmt.Printf("Content: %s", string(b))
 		})
 	}
 }
