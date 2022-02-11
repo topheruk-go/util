@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/topheruk/go/app/single-table/model"
@@ -36,7 +37,7 @@ func (s *Service) handleInsertPerson(query string) http.HandlerFunc {
 			s.Err(rw, r, err, http.StatusInternalServerError)
 			return
 		}
-		rw.Header().Add("Location", s.AbsoluteURL(rw, r, p.ID))
+		rw.Header().Add("Location", s.AbsoluteURL(rw, r)+"/"+fmt.Sprint(p.ID))
 		s.Respond(rw, r, &p, http.StatusCreated)
 	}
 }

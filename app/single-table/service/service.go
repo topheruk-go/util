@@ -58,8 +58,8 @@ func (s *Service) Decode(rw http.ResponseWriter, r *http.Request, data interface
 
 func (s *Service) Echo(message string) http.HandlerFunc { return handler.Echo(message) }
 
-func (s *Service) AbsoluteURL(rw http.ResponseWriter, r *http.Request, id interface{}) string {
-	return fmt.Sprintf("%s://%s%s/%v", strings.ToLower(strings.SplitN(r.Proto, "/", 2)[0]), r.Host, r.URL, id)
+func (s *Service) AbsoluteURL(rw http.ResponseWriter, r *http.Request) string {
+	return fmt.Sprintf("%s://%s%s", strings.ToLower(strings.SplitN(r.Proto, "/", 2)[0]), r.Host, r.URL)
 }
 
 func (s *Service) migrate() {

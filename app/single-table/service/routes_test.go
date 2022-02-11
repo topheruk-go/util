@@ -33,12 +33,12 @@ func TestPing(t *testing.T) {
 
 		{pathname: "/err", status: http.StatusNotFound},
 
-		{pathname: "/person", method: http.MethodPost, content: `{"name":"John"}`},
+		{pathname: "/person", method: http.MethodPost, content: `{"name":"John"}`, status: http.StatusCreated},
 		{pathname: "/person", method: http.MethodPost, content: `{"name":30}`, status: http.StatusBadRequest},
 		{pathname: "/person", method: http.MethodPost, content: `{"name:30}`, status: http.StatusBadRequest},
 		{pathname: "/person", method: http.MethodPost, content: `{"name":"John"}`, status: http.StatusInternalServerError},
 		{pathname: "/person", method: http.MethodPost, content: `{}`, status: http.StatusInternalServerError},
-		{pathname: "/person", method: http.MethodPost, content: `{"name":"Mary"}`},
+		{pathname: "/person", method: http.MethodPost, content: `{"name":"Mary"}`, status: http.StatusCreated},
 
 		{pathname: "/person"},
 
