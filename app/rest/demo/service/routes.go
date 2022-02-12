@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/topheruk/go/app/single-table/model"
+	"github.com/topheruk/go/app/rest/demo/model"
 )
 
 func (s *Service) routes() {
