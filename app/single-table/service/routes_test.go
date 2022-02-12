@@ -77,11 +77,12 @@ func TestPing(t *testing.T) {
 
 			assert.Equal(t, res.StatusCode, tc.status)
 
+			// -- Print out the response headers & body (truncated first 50 bytes)
 			for k, v := range res.Header {
 				fmt.Printf("%s: %s\n", k, strings.Join(v, ""))
 			}
 			b, _ := io.ReadAll(res.Body)
-			fmt.Printf("Content: %s", string(b))
+			fmt.Printf("Content: %s", string(b[:]))
 		})
 	}
 }
