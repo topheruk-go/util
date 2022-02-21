@@ -15,7 +15,7 @@ func (s *Service) readSlice(dest interface{}, query string, args ...interface{})
 	return s.db.Select(dest, query, args...)
 }
 
-func (s *Service) update() error { return nil }
+func (s *Service) update() error { return ErrTodo }
 
 func (s *Service) delete(query string, uid int) error {
 	res, err := s.db.Exec(query, uid)

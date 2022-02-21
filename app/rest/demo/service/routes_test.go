@@ -45,7 +45,7 @@ func TestPing(t *testing.T) {
 
 		{pathname: "/person/1"},
 		{pathname: "/person/one", status: http.StatusBadRequest},
-		{pathname: "/person/2", status: http.StatusOK},
+		{pathname: "/person/2"},
 		{pathname: "/person/3", status: http.StatusInternalServerError},
 
 		{pathname: "/person/1", method: http.MethodDelete, status: http.StatusNoContent},
@@ -65,19 +65,14 @@ func TestPing(t *testing.T) {
 		t.Run(fmt.Sprintf("case_%d", i+1), func(t *testing.T) {
 			req, err := http.NewRequest(tc.method, srv.URL+tc.pathname, strings.NewReader(tc.content))
 			assert.Equal(t, err, nil)
-			req.Header.Add("Content-Type", tc.contentType)
 
-			fmt.Printf("Request Method: %s\nRequest URL: %s\n", req.Method, req.URL)
-			for k, v := range req.Header {
-				fmt.Printf("%s: %s\n", k, strings.Join(v, ""))
-			}
+			// TODO: do I need this?
+			req.Header.Add("Content-Type", tc.contentType)
 
 			res, err := srv.Client().Do(req)
 			assert.Equal(t, err, nil)
 
 			assert.Equal(t, res.StatusCode, tc.status)
-
-			// -- Print out the response headers & body (truncated first 50 bytes)
 		})
 	}
 }
