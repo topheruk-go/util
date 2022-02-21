@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -11,7 +10,7 @@ import (
 func (s *Service) routes() {
 	s.m.Get("/ping", s.Echo("ping"))
 
-	s.m.Post("/person", s.handleInsertPerson("INSERT INTO person (name) VALUES (:name) RETURNING *"))
+	s.m.Post("/person", s.handleInsertPerson("INSERT INTO person (name) VALUES (?) RETURNING *"))
 	s.m.Get("/person", s.handleSelectPersonSlice("SELECT * FROM person"))
 	s.m.Get("/person/{id}", s.handleSelectPerson("SELECT * FROM person WHERE id=?"))
 	s.m.Delete("/person/{id}", s.handleDeletePerson("DELETE FROM person WHERE id=?"))
@@ -26,19 +25,15 @@ func (s *Service) handleInsertPerson(query string) http.HandlerFunc {
 			s.Err(rw, r, err, http.StatusBadRequest)
 			return
 		}
+
 		var p model.Person
-		stmt, err := s.db.PrepareNamedContext(r.Context(), query)
-		if err != nil {
+		if err := s.create(&p, query, dto.Name); err != nil {
 			s.Err(rw, r, err, http.StatusInternalServerError)
 			return
 		}
-		defer stmt.Close()
-		if err := stmt.Get(&p, dto); err != nil {
-			s.Err(rw, r, err, http.StatusInternalServerError)
-			return
-		}
+		// TODO: respond 201
 		rw.Header().Add("Location", s.AbsoluteURL(rw, r)+"/"+fmt.Sprint(p.ID))
-		s.Respond(rw, r, &p, http.StatusCreated)
+		s.Respond(rw, r, p, http.StatusCreated)
 	}
 }
 
@@ -46,11 +41,12 @@ func (s *Service) handleSelectPersonSlice(query string) http.HandlerFunc {
 	// TODO: impl search params
 	return func(rw http.ResponseWriter, r *http.Request) {
 		var ps []model.Person
-		if err := s.db.Select(&ps, query); err != nil {
+		if err := s.readSlice(&ps, query); err != nil {
 			s.Err(rw, r, err, http.StatusInternalServerError)
 			return
 		}
-		s.Respond(rw, r, &ps, http.StatusOK)
+
+		s.Respond(rw, r, ps, http.StatusOK)
 	}
 }
 
@@ -61,39 +57,31 @@ func (s *Service) handleSelectPerson(query string) http.HandlerFunc {
 			s.Err(rw, r, err, http.StatusBadRequest)
 			return
 		}
+
 		var p model.Person
-		if err := s.db.Get(&p, query, uid); err != nil {
-			// should this be not found?
+		if err := s.read(&p, query, uid); err != nil {
 			s.Err(rw, r, err, http.StatusInternalServerError)
 			return
 		}
-		s.Respond(rw, r, &p, http.StatusOK)
+		// if empty then its an error?
+		s.Respond(rw, r, p, http.StatusOK)
 	}
 }
 
 // 204 on successful req (Put, Patch, Delete)
 func (s *Service) handleDeletePerson(query string) http.HandlerFunc {
-	// type response struct{}
 	return func(rw http.ResponseWriter, r *http.Request) {
 		uid, err := s.getId(rw, r)
 		if err != nil {
 			s.Err(rw, r, err, http.StatusBadRequest)
 			return
 		}
-		// TODO: should passing a value out-of-bounds or non-int types
-		// create an error?
-		res, err := s.db.Exec(query, uid)
-		if err != nil {
+
+		if err := s.delete(query, uid); err != nil {
 			s.Err(rw, r, err, http.StatusInternalServerError)
 			return
 		}
-		// TODO: feels like a hack, investigate
-		// I don;t think I should be returning an error
-		if i, _ := res.RowsAffected(); i == 0 {
-			s.Err(rw, r, errors.New("error: could not find a match"), http.StatusInternalServerError)
-			return
-		}
-		// TODO: no content over here too
+
 		s.Respond(rw, r, nil, http.StatusNoContent)
 	}
 }

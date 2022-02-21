@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -38,6 +37,7 @@ func TestPing(t *testing.T) {
 		{pathname: "/person", method: http.MethodPost, content: `{"name":30}`, status: http.StatusBadRequest},
 		{pathname: "/person", method: http.MethodPost, content: `{"name:30}`, status: http.StatusBadRequest},
 		{pathname: "/person", method: http.MethodPost, content: `{"name":"John"}`, status: http.StatusInternalServerError},
+		// TODO: expect: BadRequest
 		{pathname: "/person", method: http.MethodPost, content: `{}`, status: http.StatusInternalServerError},
 		{pathname: "/person", method: http.MethodPost, content: `{"name":"Mary"}`, status: http.StatusCreated},
 
@@ -78,11 +78,6 @@ func TestPing(t *testing.T) {
 			assert.Equal(t, res.StatusCode, tc.status)
 
 			// -- Print out the response headers & body (truncated first 50 bytes)
-			for k, v := range res.Header {
-				fmt.Printf("%s: %s\n", k, strings.Join(v, ""))
-			}
-			b, _ := io.ReadAll(res.Body)
-			fmt.Printf("Content: %s", string(b[:]))
 		})
 	}
 }
