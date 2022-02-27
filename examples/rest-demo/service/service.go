@@ -52,6 +52,22 @@ func (s *Service) getId(rw http.ResponseWriter, r *http.Request) (int, error) {
 	return strconv.Atoi(chi.URLParamFromCtx(r.Context(), "id"))
 }
 
+func (s *Service) parseQueryParams(rw http.ResponseWriter, r *http.Request) (string, error) {
+	filter := ""
+	keys := make([]string, 0, len(r.URL.Query()))
+	values := make([][]string, 0, len(r.URL.Query()))
+	for k, v := range r.URL.Query() {
+		keys = append(keys, k)
+		// if len(v) > 1 : WHERE <key> IN (<val_1>, <val_2>,...etc)
+		values = append(values, v)
+	}
+
+	fmt.Printf("k: %v\n", keys)
+	fmt.Printf("v: %v\n", values)
+
+	return filter, nil
+}
+
 func (s *Service) Decode(rw http.ResponseWriter, r *http.Request, data interface{}) error {
 	return encoding.Decode(rw, r, data)
 }

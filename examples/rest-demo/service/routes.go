@@ -36,10 +36,17 @@ func (s *Service) handleInsertPerson(query string) http.HandlerFunc {
 }
 
 func (s *Service) handleSelectPersonSlice(query string) http.HandlerFunc {
-	// TODO: impl search params
 	return func(rw http.ResponseWriter, r *http.Request) {
+		filter, err := s.parseQueryParams(rw, r)
+		if err != nil {
+			s.Err(rw, r, err, http.StatusBadRequest)
+			return
+		}
+
+		fmt.Println(query + filter)
+
 		var ps []model.Person
-		if err := s.readSlice(&ps, query); err != nil {
+		if err := s.readSlice(&ps, query+filter); err != nil {
 			s.Err(rw, r, err, http.StatusInternalServerError)
 			return
 		}
