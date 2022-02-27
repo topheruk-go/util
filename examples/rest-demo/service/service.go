@@ -52,18 +52,32 @@ func (s *Service) getId(rw http.ResponseWriter, r *http.Request) (int, error) {
 	return strconv.Atoi(chi.URLParamFromCtx(r.Context(), "id"))
 }
 
+// NamedQuery
+// sqlx.In
 func (s *Service) parseQueryParams(rw http.ResponseWriter, r *http.Request) (string, error) {
 	filter := ""
 	keys := make([]string, 0, len(r.URL.Query()))
 	values := make([][]string, 0, len(r.URL.Query()))
 	for k, v := range r.URL.Query() {
 		keys = append(keys, k)
-		// if len(v) > 1 : WHERE <key> IN (<val_1>, <val_2>,...etc)
+		// ?par1=val1
+		// if len(param) == 1 { db.Select(dest, query+"WHERE par1 = ?", val1) };
+
+		// ?par1=in:val1,val2
+		// if len(param) == 2 { db.Select(dest, query+"WHERE par1 BETWEEN ? AND ?", val1, val2) };
+
+		// ?par1=ge:val1
+		// TODO:
+
+		// ?sor1=key1:asc,key2,key3:desc
+		// TODO:
+
 		values = append(values, v)
 	}
 
 	fmt.Printf("k: %v\n", keys)
 	fmt.Printf("v: %v\n", values)
+	fmt.Printf("r.URL.Query(): %v\n", r.URL.Query())
 
 	return filter, nil
 }
