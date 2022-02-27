@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/topheruk/go/src/encoding"
+	"github.com/topheruk/go/std/x/encoding"
 )
 
 func Echo(message string) http.HandlerFunc {

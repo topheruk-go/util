@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/topheruk/go/app/rest/demo/model"
+	"github.com/topheruk/go/examples/rest-demo/model"
 )
 
 func (s *Service) routes() {
