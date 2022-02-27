@@ -9,8 +9,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jmoiron/sqlx"
-	"github.com/topheruk/go/std/x/encoding"
-	"github.com/topheruk/go/std/x/http/handler"
+	"github.com/topheruk/go/src/x/encoding"
+	"github.com/topheruk/go/src/x/http/handler"
 )
 
 type Service struct {
