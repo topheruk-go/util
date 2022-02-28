@@ -25,6 +25,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/qri-io/jsonschema v0.2.1
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0
+	github.com/wagslane/go-password-validator v0.3.0
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.0.2 // indirect
 	github.com/xdg-go/stringprep v1.0.2 // indirect
