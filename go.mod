@@ -13,15 +13,15 @@ require (
 )
 
 require (
-	github.com/go-chi/chi v1.5.4
 	github.com/go-chi/chi/v5 v5.0.7
+	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-playground/validator/v10 v10.9.0
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/uuid v1.3.0
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/klauspost/compress v1.13.6 // indirect
-	github.com/mattn/go-sqlite3 v1.14.10 // indirect
+	github.com/mattn/go-sqlite3 v1.14.10
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/qri-io/jsonschema v0.2.1
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0
