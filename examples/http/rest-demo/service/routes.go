@@ -14,6 +14,7 @@ func (s *Service) routes() {
 	s.m.Get("/person", s.handleSelectPersonSlice("SELECT * FROM person"))
 	s.m.Get("/person/{id}", s.handleSelectPerson("SELECT * FROM person WHERE id=?"))
 	s.m.Delete("/person/{id}", s.handleDeletePerson("DELETE FROM person WHERE id=?"))
+	// TODO: update route
 }
 
 func (s *Service) handleInsertPerson(query string) http.HandlerFunc {
@@ -37,12 +38,7 @@ func (s *Service) handleInsertPerson(query string) http.HandlerFunc {
 
 func (s *Service) handleSelectPersonSlice(query string) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-		filter, err := s.parseQueryParams(rw, r)
-		if err != nil {
-			s.Err(rw, r, err, http.StatusBadRequest)
-			return
-		}
-
+		filter := s.parseQueryParams(rw, r)
 		fmt.Println(query + filter)
 
 		var ps []model.Person
