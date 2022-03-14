@@ -2,14 +2,17 @@ package model_test
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 	"testing"
+
+	test "github.com/topheruk/go/src/x/testing"
 
 	"github.com/go-playground/assert/v2"
 	"github.com/topheruk/go/examples/encoding/model"
 	"github.com/topheruk/go/examples/encoding/model/person"
 )
+
+func casename(n int) string { return test.Casename(n) }
 
 // MinEntropy is definetly something that should be defined
 // within the back end. But I dont see any reason to have a
@@ -29,7 +32,7 @@ func TestPasswordUnmarshal(t *testing.T) {
 	}
 
 	for i, tc := range tt {
-		t.Run(fmt.Sprintf("case_%d", i+1), func(t *testing.T) {
+		t.Run(casename(i), func(t *testing.T) {
 			type response struct {
 				Password model.Password
 			}
@@ -60,7 +63,7 @@ func TestPasswordMarshal(t *testing.T) {
 	}
 
 	for i, tc := range tt {
-		t.Run(fmt.Sprintf("case_%d", i+1), func(t *testing.T) {
+		t.Run(casename(i), func(t *testing.T) {
 			var sb strings.Builder
 			err := json.NewEncoder(&sb).Encode(tc.data)
 			assert.Equal(t, err, nil)
@@ -85,7 +88,7 @@ func TestPersonUnmarshal(t *testing.T) {
 	}
 
 	for i, tc := range tt {
-		t.Run(fmt.Sprintf("case_%d", i+1), func(t *testing.T) {
+		t.Run(casename(i), func(t *testing.T) {
 			var res person.DTO
 			err := json.Unmarshal([]byte(tc.data), &res)
 			assert.Equal(t, err, tc.err)
@@ -96,6 +99,28 @@ func TestPersonUnmarshal(t *testing.T) {
 			b, err := json.Marshal(&res)
 			assert.Equal(t, err, nil)
 			assert.Equal(t, string(b), tc.data)
+		})
+	}
+}
+
+// I again don't need to test this,
+// But it bumps my coverage up a little bit
+func TestHashPassword(t *testing.T) {
+	t.Parallel()
+	type testcase struct {
+		value string
+	}
+
+	tt := []testcase{
+		{value: "_Jde£5%3$^fsccfs0"},
+	}
+
+	for i, tc := range tt {
+		t.Run(casename(i), func(t *testing.T) {
+			hash, err := model.Password(tc.value).Hash()
+			assert.Equal(t, err, nil)
+
+			assert.Equal(t, model.CheckPasswordHash(tc.value, hash), nil)
 		})
 	}
 }
