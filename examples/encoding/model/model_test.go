@@ -1,4 +1,4 @@
-package model
+package model_test
 
 import (
 	"encoding/json"
@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/go-playground/assert/v2"
+	"github.com/topheruk/go/examples/encoding/model"
+	"github.com/topheruk/go/examples/encoding/model/person"
 )
 
 // MinEntropy is definetly something that should be defined
@@ -29,7 +31,7 @@ func TestPasswordUnmarshal(t *testing.T) {
 	for i, tc := range tt {
 		t.Run(fmt.Sprintf("case_%d", i+1), func(t *testing.T) {
 			type response struct {
-				Password Password
+				Password model.Password
 			}
 
 			var res response
@@ -38,7 +40,7 @@ func TestPasswordUnmarshal(t *testing.T) {
 				// could check type of error, but it's pretty simple stuff
 				return
 			}
-			assert.Equal(t, res.Password, Password(tc.expected))
+			assert.Equal(t, res.Password, model.Password(tc.expected))
 		})
 	}
 }
@@ -50,11 +52,11 @@ func TestPasswordMarshal(t *testing.T) {
 	t.Parallel()
 
 	type testcase struct {
-		data struct{ Password Password }
+		data struct{ Password model.Password }
 	}
 
 	tt := []testcase{
-		{data: struct{ Password Password }{Password: "password"}},
+		{data: struct{ Password model.Password }{Password: "password"}},
 	}
 
 	for i, tc := range tt {
@@ -78,13 +80,13 @@ func TestPersonUnmarshal(t *testing.T) {
 	}
 
 	tt := []testcase{
-		{data: `{}`, err: ErrEmpty}, //err:empty
+		{data: `{}`, err: model.ErrEmpty}, //err:empty
 		{data: `{"name":"John","password":"_Jde£5%3$^fsccfs0"}`},
 	}
 
 	for i, tc := range tt {
 		t.Run(fmt.Sprintf("case_%d", i+1), func(t *testing.T) {
-			var res PersonDto
+			var res person.DTO
 			err := json.Unmarshal([]byte(tc.data), &res)
 			assert.Equal(t, err, tc.err)
 			if err != nil {
@@ -96,4 +98,18 @@ func TestPersonUnmarshal(t *testing.T) {
 			assert.Equal(t, string(b), tc.data)
 		})
 	}
+}
+
+// Tbh, if this fails it's not due to human error
+// so testing purely for coverage
+func TestPersonCreate(t *testing.T) {
+	t.Parallel()
+
+	dto := person.DTO{
+		Name:     "John",
+		Password: "password",
+	}
+	p := person.New(dto)
+
+	assert.Equal(t, string(p.Name), "John")
 }
