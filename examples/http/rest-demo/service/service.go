@@ -54,7 +54,7 @@ func (s *Service) getId(rw http.ResponseWriter, r *http.Request) (int, error) {
 
 // NamedQuery
 // sqlx.In
-func (s *Service) parseQueryParams(rw http.ResponseWriter, r *http.Request) (string, error) {
+func (s *Service) parseQueryParams(rw http.ResponseWriter, r *http.Request) string {
 	filter := ""
 	keys := make([]string, 0, len(r.URL.Query()))
 	values := make([][]string, 0, len(r.URL.Query()))
@@ -79,7 +79,7 @@ func (s *Service) parseQueryParams(rw http.ResponseWriter, r *http.Request) (str
 	fmt.Printf("v: %v\n", values)
 	fmt.Printf("r.URL.Query(): %v\n", r.URL.Query())
 
-	return filter, nil
+	return filter
 }
 
 func (s *Service) Decode(rw http.ResponseWriter, r *http.Request, data interface{}) error {
