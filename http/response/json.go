@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/topheruk/go/x/encoding"
+	"github.com/topheruk/go/encoding"
 )
 
 func New(rw http.ResponseWriter, r *http.Request, data interface{}, status int) {
