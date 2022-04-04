@@ -3,7 +3,7 @@ package request
 import (
 	"net/http"
 
-	"github.com/topheruk/go/encoding"
+	"github.com/topheruk-go/util/encoding"
 )
 
 func New(rw http.ResponseWriter, r *http.Request, data interface{}) error {

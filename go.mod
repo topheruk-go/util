@@ -1,4 +1,4 @@
-module github.com/topheruk/go
+module github.com/topheruk-go/util
 
 go 1.18
 
