@@ -6,37 +6,32 @@ import (
 	"strings"
 )
 
-type options struct {
+type Options struct {
 	cli *http.Client
 	m   string //method
 	h   http.Header
 	b   io.Reader
 }
 
-func optionsBuilder() *options {
-	h := make(http.Header)
-	h.Set("Content-Type", "application/json")
-
-	return &options{
-		cli: http.DefaultClient,
-		h:   h,
-		m:   "GET",
-	}
+var DefaultOptions = &Options{
+	cli: http.DefaultClient,
+	h: http.Header{
+		"Content-Type": []string{"appliaction/json"},
+	},
+	m: "GET",
 }
 
-var DefaultOptions = optionsBuilder()
-
-func (o *options) Client(cli *http.Client) *options {
+func (o *Options) Client(cli *http.Client) *Options {
 	o.cli = cli
 	return o
 }
 
-func (o *options) ContentType(contentTyp string) *options {
+func (o *Options) ContentType(contentTyp string) *Options {
 	o.h.Set("Content-Type", contentTyp)
 	return o
 }
 
-func (o *options) Header(h http.Header) *options {
+func (o *Options) Header(h http.Header) *Options {
 	for k, v := range h {
 		o.h.Set(k, strings.Join(v, "; "))
 	}

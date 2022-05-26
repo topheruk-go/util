@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func Fetch(url string, callback func(resp *http.Response) error, o *options) error {
+func Fetch(url string, callback func(resp *http.Response) error, o *Options) error {
 	req, err := http.NewRequest(o.m, url, o.b)
 	if err != nil {
 		return err
