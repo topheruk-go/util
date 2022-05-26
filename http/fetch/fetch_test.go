@@ -21,3 +21,17 @@ func TestFetch(t *testing.T) {
 
 	assert.Assert(t, cmp.Equal(api.Items[0].VolumeInfo.Title, "The Two Towers"))
 }
+
+func TestFetchUnsplash(t *testing.T) {
+	key := `edD4pxoguNcEdb_XkdmIOVUBJ9jfPTSLOMAeOPwYZF4`
+	path := `/photos/random`
+
+	var code int
+	assert.Assert(t,
+		Fetch("https://api.unsplash.com"+path, func(resp *http.Response) error {
+			code = resp.StatusCode
+			return nil
+		}, DefaultOptions.Header(http.Header{"Accept-Version": []string{"v1"}, "Authorization": []string{`Client-ID ` + key}})))
+
+	assert.Assert(t, cmp.Equal(code, 200))
+}
