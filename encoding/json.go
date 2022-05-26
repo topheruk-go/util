@@ -11,21 +11,6 @@ import (
 	"github.com/qri-io/jsonschema"
 )
 
-func Respond(rw http.ResponseWriter, r *http.Request, data interface{}, status int) {
-	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
-	rw.WriteHeader(status)
-	if data != nil {
-		err := json.NewEncoder(rw).Encode(data)
-		if err != nil {
-			http.Error(rw, "Could not encode in json", status)
-		}
-	}
-}
-
-func Decode(rw http.ResponseWriter, r *http.Request, data interface{}) (err error) {
-	return json.NewDecoder(r.Body).Decode(data)
-}
-
 func loadSchema(url string) (*jsonschema.Schema, error) {
 	resp, err := http.Get(url)
 	if err != nil {
