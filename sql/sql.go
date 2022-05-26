@@ -25,7 +25,7 @@ func Query[T any](db *sql.DB, callback func(rows *sql.Rows, v *T) error, query s
 	return vs, rows.Err()
 }
 
-func QueryPSQL[T any](db *pgx.Conn, callback func(rows pgx.Rows, v *T) error, query string, args ...any) ([]T, error) {
+func QueryPSQL[T any](db *pgx.Conn, query string, callback func(rows pgx.Rows, v *T) error, args ...any) ([]T, error) {
 	rows, err := db.Query(context.Background(), query, args...)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func QueryRow(db *sql.DB, callback func(row *sql.Row) error, query string, args 
 	return callback(db.QueryRow(query))
 }
 
-func QueryRowPSQL(db *pgx.Conn, callback func(row pgx.Row) error, query string, args ...any) error {
+func QueryRowPSQL(db *pgx.Conn, query string, callback func(row pgx.Row) error, args ...any) error {
 	return callback(db.QueryRow(context.Background(), query, args...))
 }
 
@@ -56,7 +56,7 @@ func Exec(db *sql.DB, query string, args ...any) error {
 	return err
 }
 
-func ExecPQSL(db *pgx.Conn, query string, args ...any) error {
+func ExecPSQL(db *pgx.Conn, query string, args ...any) error {
 	_, err := db.Exec(context.Background(), query, args...)
 	return err
 }
