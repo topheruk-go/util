@@ -7,7 +7,11 @@ import (
 )
 
 func Query[T any](db *pgx.Conn, query string, scanner func(rows pgx.Rows, v *T) error, args ...any) ([]T, error) {
-	rows, err := db.Query(context.Background(), query, args...)
+	return QueryContext(context.Background(), db, query, scanner, args...)
+}
+
+func QueryContext[T any](ctx context.Context, db *pgx.Conn, query string, scanner func(rows pgx.Rows, v *T) error, args ...any) ([]T, error) {
+	rows, err := db.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
