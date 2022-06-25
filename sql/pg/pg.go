@@ -29,10 +29,18 @@ func QueryContext[T any](ctx context.Context, db *pgx.Conn, query string, scanne
 }
 
 func QueryRow(db *pgx.Conn, query string, scanner func(row pgx.Row) error, args ...any) error {
+	return QueryRowContext(context.Background(), db, query, scanner, args...)
+}
+
+func QueryRowContext(ctx context.Context, db *pgx.Conn, query string, scanner func(row pgx.Row) error, args ...any) error {
 	return scanner(db.QueryRow(context.Background(), query, args...))
 }
 
 func Exec(db *pgx.Conn, query string, args ...any) error {
+	return ExecContext(context.Background(), db, query, args...)
+}
+
+func ExecContext(ctx context.Context, db *pgx.Conn, query string, args ...any) error {
 	_, err := db.Exec(context.Background(), query, args...)
 	return err
 }
