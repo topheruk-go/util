@@ -48,3 +48,8 @@ func TestExec(t *testing.T) {
 	err := Exec(db, "INSERT INTO testcase (name,age) VALUES ($1,$2)", "Maxi", 31)
 	assert.Assert(t, err)
 }
+
+func TestConnString(t *testing.T) {
+	connString := ConnString{"POSTGRES_HOSTNAME", "DB_PORT", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB", "SSL_MODE"}
+	assert.Assert(t, cmp.Equal(connString.ExpandEnv(), "host=localhost port=5432 user=postgres password=postgres dbname=postgres sslmode=disable"))
+}
