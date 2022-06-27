@@ -7,12 +7,7 @@ import (
 
 // Environment Variables
 //
-// POSTGRES_USER=postgres
-// POSTGRES_PASSWORD=postgres
-// POSTGRES_DB=postgres
-// POSTGRES_HOSTNAME=localhost
-// DB_PORT=5432
-// SSL_MODE=disable
+// host=POSTGRES_HOSTNAME port=DB_PORT user=POSGRES_USER password=POSTGRES_PASSWORD dbname=POSTGRES_DB sslmode=SSL_MODE
 var DefaultConnString = ConnString{"POSTGRES_HOSTNAME", "DB_PORT", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB", "SSL_MODE"}
 
 type ConnString struct {
