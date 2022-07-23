@@ -1,4 +1,4 @@
-module github.com/topheruk-go/util
+module github.com/topheruk-go/prelude
 
 go 1.18
 
