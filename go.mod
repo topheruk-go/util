@@ -46,4 +46,7 @@ require (
 )
 
 // no longer maintained
-retract v0.2.0
+retract v0.0.2
+
+// no longer maintained
+retract v0.0.1
