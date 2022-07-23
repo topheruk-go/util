@@ -1,4 +1,4 @@
-module github.com/topheruk-go/prelude
+module github.com/hyphengolang/prelude
 
 go 1.18
 
@@ -44,9 +44,3 @@ require (
 	go.mongodb.org/mongo-driver v1.8.4
 	gotest.tools/v3 v3.2.0
 )
-
-// no longer maintained
-retract v0.0.2
-
-// no longer maintained
-retract v0.0.1
